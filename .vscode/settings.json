@@ -1,0 +1,21 @@
+{
+"makefile.configureOnOpen": true,
+"[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff"
+},
+
+"emmet.includeLanguages": {
+    "django-html": "html"
+},
+
+"files.associations": {
+    "**/*.html": "html",
+    "**/templates/**/*.html": "django-html"
+},
+
+"python.analysis.typeCheckingMode": "off"
+}

@@ -1,0 +1,210 @@
+.appointment-container {
+    padding: 40px;
+    max-width: 600px;
+    margin: 0 auto;
+    color: white;
+}
+
+.appointment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: #18181b;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #333;
+}
+
+.appointment-form label {
+    font-weight: bold;
+    color: #a1a1aa;
+}
+
+.appointment-form input, 
+.appointment-form select, 
+.appointment-form textarea {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: #27272a;
+    color: white;
+}
+
+.submit-btn {
+    margin-top: 10px;
+    padding: 12px;
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.submit-btn:hover { background: #b91c1c; }
+
+
+/* Slots Container */
+.slots-section {
+    margin-bottom: 20px;
+    background: #18181b;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.mini-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.mini-slot-btn {
+    padding: 8px 5px;
+    font-size: 0.8rem;
+    border-radius: 5px;
+    border: 1px solid #333;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+/* Available (Green) */
+.mini-slot-btn.open {
+    background-color: #064e3b;
+    color: #34d399;
+    border-color: #059669;
+}
+
+.mini-slot-btn.open:hover {
+    background-color: #059669;
+    color: white;
+}
+
+/* Selected State (When clicked) */
+.mini-slot-btn.selected {
+    background-color: white;
+    color: black;
+    border-color: white;
+    transform: scale(1.05);
+}
+
+/* Taken (Gray/Red) */
+.mini-slot-btn.taken {
+    background-color: #27272a;
+    color: #ef4444;
+    text-decoration: line-through;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.loading-text, .no-slots-text {
+    font-size: 0.9rem;
+    color: #a1a1aa;
+    text-align: center;
+    padding: 10px;
+}
+
+
+/* Layout for Desktop: Calendar Left, Form Right */
+.appointment-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.calendar-section {
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+/* --- DARK MODE CALENDAR OVERRIDES --- */
+.react-calendar {
+    width: 100%;
+    background-color: #18181b; /* Dark Gray bg */
+    border: 1px solid #333;
+    font-family: inherit;
+    border-radius: 12px;
+    color: white;
+    padding: 10px;
+}
+
+/* Navigation Buttons (<< < > >>) */
+.react-calendar__navigation button {
+    color: white;
+    min-width: 44px;
+    background: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+    background-color: #27272a;
+    border-radius: 8px;
+}
+
+/* Weekday Names (Mo, Tu, We...) */
+.react-calendar__month-view__weekdays__weekday {
+    color: #dc2626; /* Red Text */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Day Tiles */
+.react-calendar__tile {
+    color: #d4d4d8;
+    background: none;
+    padding: 15px 5px; /* Taller touch targets */
+    border-radius: 6px;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+    background-color: #27272a;
+    color: white;
+}
+
+/* Today */
+.react-calendar__tile--now {
+    background: #3f3f46;
+    color: white;
+    font-weight: bold;
+    border: 1px solid #71717a;
+}
+
+/* Selected Date */
+.react-calendar__tile--active {
+    background: #dc2626 !important; /* Inkspire Red */
+    color: white !important;
+}
+
+/* Disabled Days (Past) */
+.react-calendar__tile:disabled {
+    background-color: #09090b;
+    color: #52525b;
+    cursor: not-allowed;
+}
+
+/* Selected Date Text Display */
+.selected-date-display {
+    background: #27272a;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 20px;
+    border: 1px solid #333;
+    color: #a1a1aa;
+}
+.selected-date-display strong {
+    color: white;
+    display: block;
+    font-size: 1.1rem;
+    margin-top: 5px;
+}
+
+/* Hide standard date input since we have the calendar */
+/* Only hide if you really want to force the calendar usage */
+/* input[type="date"] { display: none; } */

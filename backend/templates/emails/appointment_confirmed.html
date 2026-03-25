@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Confirmed - Inkspire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            margin: 10px 0 0 0;
+            font-size: 16px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .success-icon {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .success-icon span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-radius: 50%;
+            font-size: 40px;
+        }
+        .message {
+            text-align: center;
+            color: #374151;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .appointment-details {
+            background-color: #f9fafb;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .appointment-details h2 {
+            color: #111827;
+            font-size: 20px;
+            margin: 0 0 20px 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .detail-value {
+            color: #111827;
+            font-weight: 600;
+            text-align: right;
+        }
+        .price-highlight {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .price-highlight .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        .price-highlight .value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .cta-button {
+            display: block;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 16px 30px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .footer {
+            background-color: #f9fafb;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0;
+        }
+        .footer .brand {
+            color: #111827;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✓ Appointment Confirmed!</h1>
+            <p>Your tattoo session has been approved</p>
+        </div>
+        
+        <div class="content">
+            <div class="success-icon">
+                <span>✓</span>
+            </div>
+            
+            <div class="message">
+                <p>Hi {{ customer_name }},</p>
+                <p>Great news! <strong>{{ artist_name }}</strong> has confirmed your appointment. We've provided all the details below.</p>
+            </div>
+            
+            {% if price_quote %}
+            <div class="price-highlight">
+                <div class="label">Total Quote</div>
+                <div class="value">${{ price_quote }}</div>
+            </div>
+            {% endif %}
+            
+            <div class="appointment-details">
+                <h2>Appointment Details</h2>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Artist</span>
+                    <span class="detail-value">{{ artist_name }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">{{ appointment_date }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Time</span>
+                    <span class="detail-value">{{ appointment_time }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Session Type</span>
+                    <span class="detail-value">{{ session_type }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Placement</span>
+                    <span class="detail-value">{{ placement }}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Duration</span>
+                    <span class="detail-value">{{ duration }} hour(s)</span>
+                </div>
+                
+                {% if deposit_amount %}
+                <div class="detail-row">
+                    <span class="detail-label">Deposit Required</span>
+                    <span class="detail-value">${{ deposit_amount }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if artist_notes %}
+            <div class="appointment-details">
+                <h2>Message from {{ artist_name }}</h2>
+                <p style="color: #374151; line-height: 1.6; margin: 0;">{{ artist_notes }}</p>
+            </div>
+            {% endif %}
+            
+            <a href="{{ dashboard_url }}" class="cta-button">View in Dashboard</a>
+            
+            <p style="color: #6b7280; font-size: 14px; text-align: center;">
+                If you need to reschedule or have any questions, please contact us as soon as possible.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <div class="brand">INKSPIRE</div>
+            <p>Connecting you with the best tattoo artists</p>
+        </div>
+    </div>
+</body>
+</html>
