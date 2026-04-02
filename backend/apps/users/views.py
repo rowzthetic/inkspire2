@@ -685,3 +685,65 @@ class UpdateArtistProfileView(generics.UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class GlobalGalleryView(generics.ListAPIView):
+    """Returns a list of all portfolio images globally"""
+    serializer_class = PortfolioImageSerializer
+    permission_classes = [permissions.AllowAny]
+    queryset = PortfolioImage.objects.all().order_by('-created_at')
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+        if not email:
+            return Response({"error": "Email is required"}, status=400)
+            
+        try:
+            user = User.objects.get(email=email)
+            otp = generate_otp()
+            user.otp = otp
+            user.otp_expiry = get_otp_expiry()
+            user.save()
+            
+            send_mail(
+                "Inkspire Password Reset",
+                f"Your password reset code is: {otp}",
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+            return Response({"message": "Password reset OTP sent"})
+        except User.DoesNotExist:
+            return Response({"message": "If the email is registered, an OTP has been sent."})
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+        otp_input = request.data.get("otp")
+        new_password = request.data.get("new_password")
+        
+        if not all([email, otp_input, new_password]):
+            return Response({"error": "Email, OTP, and new_password are required"}, status=400)
+            
+        try:
+            user = User.objects.get(email=email)
+            if user.otp != otp_input:
+                return Response({"error": "Invalid OTP"}, status=400)
+            if user.otp_expiry and timezone.now() > user.otp_expiry:
+                return Response({"error": "OTP has expired"}, status=400)
+                
+            user.set_password(new_password)
+            user.otp = None
+            user.otp_expiry = None
+            user.save()
+            return Response({"message": "Password reset successfully"})
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=404)
+

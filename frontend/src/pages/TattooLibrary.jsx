@@ -1,139 +1,5 @@
-// import React, { useState, useEffect } from 'react';
-// import { Search } from 'lucide-react'; // Make sure you have lucide-react installed
-
-// const TattooLibrary = () => {
-//   const [meanings, setMeanings] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const [loading, setLoading] = useState(true);
-//   const [selectedItem, setSelectedItem] = useState(null); // For the popup modal
-
-//   // 1. Fetch data from your new Backend API
-//   useEffect(() => {
-//     const fetchLibrary = async () => {
-//       try {
-//         // If search is empty, fetch all. If not, append ?search=...
-//         const url = searchTerm 
-//           ? `http://127.0.0.1:8000/api/library/?search=${searchTerm}`
-//           : 'http://127.0.0.1:8000/api/library/';
-        
-//         const res = await fetch(url);
-//         const data = await res.json();
-//         setMeanings(data);
-//         setLoading(false);
-//       } catch (error) {
-//         console.error("Error fetching library:", error);
-//         setLoading(false);
-//       }
-//     };
-
-//     // specific delay so it doesn't search on every single keystroke immediately
-//     const delayDebounce = setTimeout(() => {
-//       fetchLibrary();
-//     }, 300);
-
-//     return () => clearTimeout(delayDebounce);
-//   }, [searchTerm]);
-
-//   return (
-//     <div className="min-h-screen bg-gray-50 p-8">
-//       {/* Header Section */}
-//       <div className="text-center mb-12">
-//         <h1 className="text-4xl font-bold text-gray-900 mb-4">Tattoo Meaning Library</h1>
-//         <p className="text-gray-600 mb-8">Discover the symbolism behind the ink.</p>
-        
-//         {/* Search Bar */}
-//         <div className="relative max-w-xl mx-auto">
-//           <input 
-//             type="text"
-//             placeholder="Search for 'Rose', 'Anchor', 'Strength'..."
-//             className="w-full p-4 pl-12 rounded-full border border-gray-300 shadow-sm focus:ring-2 focus:ring-purple-500 outline-none"
-//             value={searchTerm}
-//             onChange={(e) => setSearchTerm(e.target.value)}
-//           />
-//           <Search className="absolute left-4 top-4 text-gray-400" />
-//         </div>
-//       </div>
-
-//       {/* Grid Display */}
-//       {loading ? (
-//         <p className="text-center">Loading Library...</p>
-//       ) : (
-//         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-//           {meanings.map((item) => (
-//             <div 
-//               key={item.id} 
-//               onClick={() => setSelectedItem(item)}
-//               className="bg-white rounded-xl shadow hover:shadow-lg transition cursor-pointer overflow-hidden border border-gray-100 group"
-//             >
-//               {/* Image Area */}
-//               <div className="h-48 bg-gray-200 overflow-hidden">
-//                 {item.image ? (
-//                   <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition" />
-//                 ) : (
-//                   <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
-//                 )}
-//               </div>
-              
-//               {/* Text Area */}
-//               <div className="p-4">
-//                 <h3 className="text-xl font-bold text-gray-800">{item.title}</h3>
-//                 <p className="text-gray-500 text-sm mt-1 truncate">{item.meaning}</p>
-                
-//                 {/* Tags */}
-//                 <div className="mt-3 flex flex-wrap gap-2">
-//                   {item.tags.split(',').slice(0, 2).map((tag, idx) => (
-//                     <span key={idx} className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
-//                       {tag.trim()}
-//                     </span>
-//                   ))}
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       )}
-
-//       {/* Modal Popup for Details */}
-//       {selectedItem && (
-//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-//           <div className="bg-white rounded-lg max-w-2xl w-full p-6 relative">
-//             <button 
-//               onClick={() => setSelectedItem(null)}
-//               className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl font-bold"
-//             >
-//               ✕
-//             </button>
-            
-//             <h2 className="text-3xl font-bold mb-4">{selectedItem.title}</h2>
-            
-//             <div className="flex gap-6 flex-col md:flex-row">
-//               {selectedItem.image && (
-//                 <img src={selectedItem.image} alt={selectedItem.title} className="w-full md:w-1/2 rounded-lg object-cover" />
-//               )}
-//               <div className="flex-1">
-//                 <h4 className="font-bold text-gray-700 mb-2">Meaning & Symbolism:</h4>
-//                 <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-//                   {selectedItem.meaning}
-//                 </p>
-                
-//                 <div className="mt-6 pt-4 border-t">
-//                     <span className="text-sm font-semibold text-gray-500">Tags: </span>
-//                     <span className="text-sm text-purple-600">{selectedItem.tags}</span>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default TattooLibrary;
-
-
 import { useState, useMemo } from "react";
-import { Search, X, BookOpen, MapPin, Sparkles, ChevronRight, AlertTriangle, Send, RotateCcw } from "lucide-react";
+import { Search, X, BookOpen, MapPin, Sparkles, ChevronRight, AlertTriangle, Send, RotateCcw, Loader2 } from "lucide-react";
 
 // ─── Dataset ────────────────────────────────────────────────────────────────
 
@@ -533,11 +399,19 @@ const BodyMap = ({ activeBodyPart, onSelect }) => {
             padding: "4px 12px", borderRadius: 20 }}>
             Filtering: {BODY_PARTS.find(p => p.id === activeBodyPart)?.label}
           </span>
-          <button onClick={() => onSelect(null)} style={{
-            display: "block", margin: "8px auto 0", background: "transparent",
-            border: "none", color: "#555", cursor: "pointer", fontSize: 11,
-            display: "flex", alignItems: "center", gap: 4, margin: "8px auto 0",
-          }}>
+          <button onClick={() => onSelect(null)} 
+            // ✅ CORRECT (Clean and singular)
+style={{
+  display: "flex", 
+  alignItems: "center", 
+  gap: 4, 
+  margin: "8px auto 0", 
+  background: "transparent",
+  border: "none", 
+  color: "#555", 
+  cursor: "pointer", 
+  fontSize: 11
+}}>
             <RotateCcw size={10} /> Clear
           </button>
         </div>
@@ -546,108 +420,143 @@ const BodyMap = ({ activeBodyPart, onSelect }) => {
   );
 };
 
-// ─── AI Consultant ───────────────────────────────────────────────────────────
+// ─── AI Consultant Search Engine ───────────────────────────────────────────────────────────
 
-const AIConsultant = ({ onSymbolHighlight }) => {
+const AIConsultant = () => {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState([
-    { role: "ai", text: DEFAULT_AI }
-  ]);
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSend = () => {
+  const handleSearch = async () => {
     if (!input.trim()) return;
-    const userMsg = input.trim();
-    setMessages(prev => [...prev, { role: "user", text: userMsg }]);
-    setInput("");
+    
     setLoading(true);
+    setHasSearched(true);
+    setResult(null);
 
-    setTimeout(() => {
-      const lower = userMsg.toLowerCase();
-      const match = AI_RESPONSES.find(r => r.keywords.some(k => lower.includes(k)));
-      const responseText = match
-        ? match.response
-        : `Your story carries weight. Based on what you've shared, I sense themes of **${lower.split(" ").slice(0, 3).join(", ")}**. The symbols that often resonate with journeys like yours are the **Phoenix** (transformation through fire) and the **Compass** (finding your own direction). Would you like to explore either of these?`;
-
-      setMessages(prev => [...prev, { role: "ai", text: responseText }]);
-      setLoading(false);
-    }, 1200);
+    try {
+        const response = await fetch('http://localhost:8000/api/consult/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: [{ role: "user", content: input.trim() }] })
+        });
+        
+        if (!response.ok) throw new Error("Failed to get response");
+        const data = await response.json();
+        setResult(data.response);
+    } catch (err) {
+        setResult("Connection error. Ensure the Inkspire AI proxy is running.");
+    } finally {
+        setLoading(false);
+    }
   };
 
+  const clearSearch = () => {
+      setInput("");
+      setResult(null);
+      setHasSearched(false);
+  }
+
   const renderText = (text) => {
-    const parts = text.split(/\*\*(.*?)\*\*/g);
-    return parts.map((part, i) =>
-      i % 2 === 1
-        ? <strong key={i} style={{ color: "#C9A84C" }}>{part}</strong>
-        : part
-    );
+    return text.split('\n').map((line, idx) => {
+        const isBullet = line.trim().startsWith('-');
+        const lineContent = isBullet ? line.trim().substring(1).trim() : line;
+        if (!lineContent) return <br key={idx} />;
+
+        const parts = lineContent.split(/\*\*(.*?)\*\*/g);
+        
+        return (
+            <span key={idx} style={{ display: isBullet ? 'list-item' : 'block', marginLeft: isBullet ? '20px' : '0', marginBottom: '8px' }}>
+                {parts.map((part, i) =>
+                    i % 2 === 1
+                        ? <strong key={i} style={{ color: "#C9A84C", fontWeight: 700 }}>{part}</strong>
+                        : part
+                )}
+            </span>
+        );
+    });
   };
 
   return (
-    <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: 16,
-      display: "flex", flexDirection: "column", height: 340 }}>
-      <div style={{ padding: "14px 18px", borderBottom: "1px solid #1e1e1e",
-        display: "flex", alignItems: "center", gap: 8 }}>
-        <Sparkles size={14} color="#C9A84C" />
-        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#C9A84C",
-          textTransform: "uppercase", letterSpacing: "0.08em" }}>
-          AI Symbolism Consultant
-        </p>
-        <span style={{ marginLeft: "auto", fontSize: 10, color: "#555",
-          background: "#1a1a1a", padding: "2px 8px", borderRadius: 10 }}>
-          UI Preview
-        </span>
-      </div>
+    <div style={{
+      background: "#111", border: "1px solid #1e1e1e", borderRadius: 16,
+      display: "flex", flexDirection: "column", padding: "24px",
+      minHeight: hasSearched ? "500px" : "300px", transition: "all 0.5s ease"
+    }}>
+      
+      {/* Search Header Container */}
+      <div style={{
+        display: "flex", flexDirection: "column", alignItems: "center",
+        justifyContent: hasSearched ? "flex-start" : "center",
+        flex: hasSearched ? 0 : 1, transition: "all 0.5s ease",
+        marginBottom: hasSearched ? "24px" : "0"
+      }}>
+          {!hasSearched && (
+             <div style={{ textAlign: "center", marginBottom: "28px" }}>
+                 <p style={{ margin: 0, fontSize: 13, color: "#C9A84C", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.2em", fontFamily: "system-ui" }}>Inkspire AI</p>
+                 <h3 style={{ margin: "8px 0 0", color: "#f0ebe0", fontSize: 26, fontWeight: 'normal', fontFamily: "'Georgia', serif" }}>Symbolism Search</h3>
+             </div>
+          )}
 
-      {/* Messages */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "14px 18px", display: "flex",
-        flexDirection: "column", gap: 12 }}>
-        {messages.map((msg, i) => (
-          <div key={i} style={{
-            alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-            maxWidth: "85%",
+          {/* Elegant Search Input */}
+          <div style={{ 
+               position: "relative", width: "100%",
+               transition: "all 0.3s ease"
           }}>
-            <div style={{
-              background: msg.role === "user"
-                ? "linear-gradient(135deg, #C9A84C22, #C9A84C11)"
-                : "#1a1a1a",
-              border: `1px solid ${msg.role === "user" ? "#C9A84C44" : "#2a2a2a"}`,
-              borderRadius: msg.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-              padding: "10px 14px",
-              fontSize: 13, color: "#c8bfb0", lineHeight: 1.6,
-            }}>
-              {renderText(msg.text)}
-            </div>
+              <Sparkles size={18} color="#C9A84C" style={{ position: "absolute", left: 18, top: "50%", transform: "translateY(-50%)" }} />
+              <input
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSearch()}
+                placeholder="Search mysteries (e.g. 'Wolf carrying a dagger')"
+                readOnly={loading}
+                style={{ 
+                   width: "100%", background: "#0a0a0b", 
+                   border: "1px solid #C9A84C44",
+                   borderRadius: 30, padding: "16px 44px 16px 48px", color: "#c8bfb0", 
+                   fontSize: 15, outline: "none", boxSizing: "border-box",
+                   fontFamily: "system-ui",
+                   boxShadow: "0 4px 20px rgba(0,0,0,0.4)"
+                }}
+              />
+              {input && !loading && (
+                 <button onClick={clearSearch} style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "#555" }}>
+                     <X size={16} />
+                 </button>
+              )}
           </div>
-        ))}
-        {loading && (
-          <div style={{ alignSelf: "flex-start", background: "#1a1a1a",
-            border: "1px solid #2a2a2a", borderRadius: "16px 16px 16px 4px",
-            padding: "10px 18px", fontSize: 20, letterSpacing: 4, color: "#C9A84C" }}>
-            ···
-          </div>
-        )}
       </div>
 
-      {/* Input */}
-      <div style={{ padding: "12px 16px", borderTop: "1px solid #1e1e1e",
-        display: "flex", gap: 8 }}>
-        <input
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && handleSend()}
-          placeholder="Tell your story..."
-          style={{ flex: 1, background: "#1a1a1a", border: "1px solid #2a2a2a",
-            borderRadius: 10, padding: "8px 12px", color: "#c8bfb0", fontSize: 13,
-            outline: "none", fontFamily: "inherit" }}
-        />
-        <button onClick={handleSend} style={{
-          background: "#C9A84C", border: "none", borderRadius: 10,
-          padding: "8px 14px", cursor: "pointer", display: "flex", alignItems: "center",
-        }}>
-          <Send size={14} color="#0a0a0a" />
-        </button>
-      </div>
+      {/* Results Knowledge Card */}
+      {hasSearched && (
+          <div style={{ 
+              background: "#1a1a1c", borderRadius: 12, border: "1px solid #2a2a2c",
+              padding: "24px", flex: 1, animation: "fadeIn 0.5s ease-out",
+              position: "relative", overflowY: "auto"
+          }}>
+              {loading ? (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", minHeight: "250px" }}>
+                       <Loader2 size={36} color="#C9A84C" style={{ animation: "spin 2s linear infinite", marginBottom: "16px" }} />
+                       <p style={{ margin: 0, color: "#C9A84C", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700 }}>Consulting the Archives...</p>
+                  </div>
+              ) : (
+                  <div>
+                      <h4 style={{ color: "#C9A84C", fontSize: 18, marginTop: 0, marginBottom: "20px", fontFamily: "'Georgia', serif", borderBottom: "1px solid #C9A84C33", paddingBottom: "12px" }}>Knowledge Card</h4>
+                      <div style={{ color: "#c8bfb0", fontSize: 15, lineHeight: 1.7, fontFamily: "system-ui" }}>
+                          {result ? renderText(result) : "No meaning found."}
+                      </div>
+                  </div>
+              )}
+          </div>
+      )}
+      
+      <style>
+        {`
+          @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes spin { 100% { transform: rotate(360deg); } }
+        `}
+      </style>
     </div>
   );
 };

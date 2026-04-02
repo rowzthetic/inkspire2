@@ -15,7 +15,7 @@ export default function Explore() {
               <img src="images/heat map.png" alt="Pain Heat Map" />
               <h3>Pain Heat Map</h3>
               <p>See which body areas hurt the most before getting inked.</p>
-              <Link to="#" className="btn">Explore</Link>
+              <Link to="/pain-map" className="btn">Explore</Link>
           </div>
 
           {/* Feature 2 - UPDATED LINK HERE */}

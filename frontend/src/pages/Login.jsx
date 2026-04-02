@@ -139,6 +139,12 @@ export default function Login() {
         </button>
       </form>
 
+      <div style={{ marginTop: '15px', textAlign: 'center' }}>
+          <Link to="/forgot-password" style={{ color: '#D4AF37', textDecoration: 'none', fontSize: '0.95rem' }}>
+              Forgot Password?
+          </Link>
+      </div>
+
       {/* --- GOOGLE BUTTON UI --- */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '20px 0' }}>
           <p style={{color: '#888', marginBottom: '15px'}}>— Or login with —</p>

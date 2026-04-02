@@ -18,6 +18,7 @@ import Shop from './pages/Shop';
 import Explore from './pages/Explore';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
 import VerifyEmail from './pages/VerifyUserEmail';
 import TattooLibrary from './pages/TattooLibrary';
 import PriceEstimator from './pages/PriceEstimator';
@@ -28,6 +29,7 @@ import ClientDashboard from './pages/client/ClientDashboard';
 import OrderHistory from './components/OrderHistory';
 import TattooHealingTracker from './pages/TattooHealingTracker';
 import TattooAISuite from './pages/TattooAISuite';
+import PainMap from './pages/PainMap'
 
 
 
@@ -72,8 +74,10 @@ function App() {
             
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/artists" element={<Artists />} />
             <Route path="/artists/:id" element={<ArtistProfile />} />
+            <Route path="/profile/:id" element={<ArtistProfile />} />
             <Route path="/appointment/:artistId" element={<Appointment />} />
             <Route path="/orders" element={<OrderHistory />} />
 
@@ -85,6 +89,7 @@ function App() {
               {/* <Route path="/preview-on-skin" element={<SkinPreview />} />
               <Route path="/image-generator" element={<ImageGenerator />} />   */}
               <Route path="/ai-suite" element={<TattooAISuite />} />
+              <Route path="/pain-map" element={<PainMap />} />
               
               {/* Dashboard Route */}
               <Route path="/artist-dashboard" element={<ArtistDashboard />} />

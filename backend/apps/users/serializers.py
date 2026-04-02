@@ -96,9 +96,12 @@ User = get_user_model()
 
 
 class PortfolioImageSerializer(serializers.ModelSerializer):
+    artist_name = serializers.CharField(source="artist.username", read_only=True)
+    artist_id = serializers.IntegerField(source="artist.id", read_only=True)
+
     class Meta:
         model = PortfolioImage
-        fields = ["id", "image", "created_at"]
+        fields = ["id", "image", "created_at", "artist_name", "artist_id"]
 
 
 class WorkScheduleSerializer(serializers.ModelSerializer):

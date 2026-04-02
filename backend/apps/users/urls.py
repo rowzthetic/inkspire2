@@ -59,6 +59,9 @@ from .views import (
     UserView,
     VerifyOTPView,
     UpdateArtistProfileView,
+    GlobalGalleryView,
+    PasswordResetRequestView,
+    PasswordResetConfirmView,
 )
 
 urlpatterns = [
@@ -85,4 +88,9 @@ urlpatterns = [
         ManagePortfolioView.as_view(),
         name="delete-portfolio",
     ),
+    # --- Gallery (Global) ---
+    path("gallery/", GlobalGalleryView.as_view(), name="global-gallery"),
+    # --- Password Reset ---
+    path("password-reset/", PasswordResetRequestView.as_view(), name="password-reset-request"),
+    path("password-reset/confirm/", PasswordResetConfirmView.as_view(), name="password-reset-confirm"),
 ]

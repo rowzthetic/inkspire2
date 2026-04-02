@@ -143,10 +143,10 @@ const Shop = () => {
             <div style={styles.header}>
                 <h2>Inkspire Aftercare & Merch</h2>
                 <div>
-                    <a href="/orders" style={{...styles.cartButton, marginRight: '15px', textDecoration: 'none', display: 'inline-block'}}>
+                    <a href="/orders" className="gold-btn" style={{marginRight: '15px', textDecoration: 'none', display: 'inline-block'}}>
                         📦 My Orders
                     </a>
-                    <button onClick={() => setIsCartOpen(!isCartOpen)} style={styles.cartButton}>
+                    <button onClick={() => setIsCartOpen(!isCartOpen)} className="gold-btn">
                         🛒 Cart ({cart.reduce((acc, item) => acc + item.quantity, 0)})
                     </button>
                 </div>
@@ -176,7 +176,7 @@ const Shop = () => {
 
             {/* Product Grid */}
             <div style={styles.grid}>
-                {displayedProducts.length === 0 ? <p style={{color: 'white'}}>No products found.</p> : null}
+                {displayedProducts.length === 0 ? <p style={{color: '#f0ebe0'}}>No products found.</p> : null}
                 
                 {displayedProducts.map((product) => (
                     <div key={product.id} style={styles.card}>
@@ -197,7 +197,7 @@ const Shop = () => {
                             <h3 style={{ margin: '5px 0' }}>{product.name}</h3>
                         </div>
                         
-                        <p style={{ color: '#555', flexGrow: 1, fontSize: '0.9rem' }}>{product.description}</p>
+                        <p style={{ color: '#ccc', flexGrow: 1, fontSize: '0.9rem' }}>{product.description}</p>
                         
                         <div style={styles.cardFooter}>
                             <strong>{product.price ? `$${parseFloat(product.price).toFixed(2)}` : 'N/A'}</strong>
@@ -209,7 +209,8 @@ const Shop = () => {
                         <button 
                             onClick={() => addToCart(product)} 
                             disabled={product.stock_quantity <= 0}
-                            style={product.stock_quantity > 0 ? styles.addButton : styles.disabledButton}
+                            className="gold-btn"
+                            style={{marginTop: 'auto'}}
                         >
                             {product.stock_quantity > 0 ? 'Add to Cart' : 'Sold Out'}
                         </button>
@@ -265,13 +266,13 @@ const Shop = () => {
                     {cart.length > 0 && (
                         <div style={styles.checkoutSection}>
                             <div style={styles.totalRow}>
-                                <span style={{color: '#555', fontWeight: '500'}}>Subtotal</span>
+                                <span style={{color: '#f0ebe0', fontWeight: '500'}}>Subtotal</span>
                                 <strong style={{fontSize: '1.3rem'}}>${cartTotal.toFixed(2)}</strong>
                             </div>
                             <p style={{fontSize: '0.8rem', color: '#888', textAlign: 'center', marginBottom: '15px', marginTop: '-5px'}}>
                                 Shipping and taxes calculated at checkout.
                             </p>
-                            <button onClick={handleCheckout} style={styles.checkoutBtn}>
+                            <button onClick={handleCheckout} className="gold-btn-solid">
                                 🔒 Pay with Stripe
                             </button>
                         </div>
@@ -285,37 +286,37 @@ const Shop = () => {
 // --- Updated Inline Styles ---
 const styles = {
     pageContainer: { fontFamily: 'sans-serif', padding: '20px', maxWidth: '1200px', margin: '0 auto', position: 'relative' },
-    loading: { textAlign: 'center', marginTop: '50px', fontSize: '1.2rem', color: 'white' },
-    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #444', paddingBottom: '10px', marginBottom: '20px', color: 'white' },
-    cartButton: { padding: '10px 20px', backgroundColor: '#fff', color: '#000', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold' },
-    toolbar: { display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', marginBottom: '30px', backgroundColor: '#1a1a1a', padding: '15px', borderRadius: '8px' },
-    searchInput: { flexGrow: 1, minWidth: '200px', padding: '10px', borderRadius: '5px', border: '1px solid #444', backgroundColor: '#333', color: 'white' },
+    loading: { textAlign: 'center', marginTop: '50px', fontSize: '1.2rem', color: '#f0ebe0' },
+    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #222', paddingBottom: '10px', marginBottom: '20px', color: '#f0ebe0' },
+    cartButton: { padding: '10px 20px', backgroundColor: 'transparent', color: '#D4AF37', border: '1px solid #D4AF37', borderRadius: '5px', cursor: 'pointer', fontSize: '1rem', fontWeight: 'bold' },
+    toolbar: { display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'space-between', marginBottom: '30px', backgroundColor: 'rgba(17, 17, 18, 0.8)', padding: '15px', borderRadius: '8px', border: '1px solid #222' },
+    searchInput: { flexGrow: 1, minWidth: '200px', padding: '10px', borderRadius: '5px', border: '1px solid #222', backgroundColor: '#0a0a0b', color: '#f0ebe0' },
     filterGroup: { display: 'flex', gap: '10px' },
-    selectInput: { padding: '10px', borderRadius: '5px', border: '1px solid #444', backgroundColor: '#333', color: 'white', cursor: 'pointer' },
-    categoryTag: { fontSize: '0.75rem', backgroundColor: '#e2e8f0', color: '#475569', padding: '3px 8px', borderRadius: '12px', fontWeight: 'bold' },
+    selectInput: { padding: '10px', borderRadius: '5px', border: '1px solid #222', backgroundColor: '#0a0a0b', color: '#f0ebe0', cursor: 'pointer' },
+    categoryTag: { fontSize: '0.75rem', backgroundColor: '#D4AF37', color: '#000', padding: '3px 8px', borderRadius: '12px', fontWeight: 'bold' },
     lowStockBadge: { position: 'absolute', top: '10px', left: '10px', backgroundColor: '#ef4444', color: 'white', padding: '4px 8px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 10 },
     grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' },
-    card: { color: '#000', border: '1px solid #ddd', borderRadius: '8px', padding: '15px', display: 'flex', flexDirection: 'column', backgroundColor: '#fff', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' },
-    imagePlaceholder: { height: '100%', width: '100%', backgroundColor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#aaa', fontSize: '1.2rem' },
+    card: { color: '#f0ebe0', border: '1px solid #222', borderRadius: '8px', padding: '15px', display: 'flex', flexDirection: 'column', backgroundColor: 'rgba(17, 17, 18, 0.8)', boxShadow: '0 4px 15px rgba(0,0,0,0.3)', transition: 'transform 0.3s' },
+    imagePlaceholder: { height: '100%', width: '100%', backgroundColor: '#222', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', fontSize: '1.2rem' },
     cardFooter: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '15px 0' },
-    addButton: { padding: '12px', backgroundColor: '#10b981', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem', transition: 'background 0.2s' },
-    disabledButton: { padding: '12px', backgroundColor: '#ccc', color: '#666', border: 'none', borderRadius: '4px', cursor: 'not-allowed', fontWeight: 'bold', fontSize: '1rem' },
+    addButton: { padding: '12px', backgroundColor: 'transparent', color: '#D4AF37', border: '1px solid #D4AF37', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem', transition: 'all 0.3s ease' },
+    disabledButton: { padding: '12px', backgroundColor: '#111', color: '#555', border: '1px solid #333', borderRadius: '4px', cursor: 'not-allowed', fontWeight: 'bold', fontSize: '1rem' },
     
     // 👇 UPGRADED CART PANEL STYLES 👇
-    cartPanel: { color: '#000', position: 'fixed', top: '0', right: '0', width: '380px', height: '100%', backgroundColor: '#fff', boxShadow: '-5px 0 25px rgba(0,0,0,0.5)', padding: '25px', zIndex: 1000, display: 'flex', flexDirection: 'column' },
-    cartHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #f1f5f9', paddingBottom: '15px', marginBottom: '20px' },
-    closeBtn: { background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#888', transition: 'color 0.2s' },
+    cartPanel: { color: '#f0ebe0', position: 'fixed', top: '0', right: '0', width: '380px', height: '100%', backgroundColor: '#0a0a0b', borderLeft: '1px solid #222', boxShadow: '-5px 0 25px rgba(0,0,0,0.8)', padding: '25px', zIndex: 1000, display: 'flex', flexDirection: 'column' },
+    cartHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #222', paddingBottom: '15px', marginBottom: '20px' },
+    closeBtn: { background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#D4AF37', transition: 'color 0.2s' },
     cartItems: { flexGrow: 1, overflowY: 'auto', paddingRight: '5px' },
     
     // Beautiful item bubbles!
-    cartItemRow: { display: 'flex', alignItems: 'center', marginBottom: '15px', backgroundColor: '#f8fafc', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0' },
-    cartItemImage: { width: '60px', height: '60px', backgroundColor: '#e2e8f0', borderRadius: '6px', overflow: 'hidden', marginRight: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-    removeBtn: { backgroundColor: 'transparent', color: '#ef4444', border: 'none', padding: '5px', fontSize: '1.2rem', cursor: 'pointer', opacity: '0.6', transition: 'opacity 0.2s' },
+    cartItemRow: { display: 'flex', alignItems: 'center', marginBottom: '15px', backgroundColor: 'rgba(17, 17, 18, 0.8)', padding: '12px', borderRadius: '10px', border: '1px solid #222' },
+    cartItemImage: { width: '60px', height: '60px', backgroundColor: '#222', borderRadius: '6px', overflow: 'hidden', marginRight: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+    removeBtn: { backgroundColor: 'transparent', color: '#ef4444', border: 'none', padding: '5px', fontSize: '1.2rem', cursor: 'pointer', opacity: '0.8', transition: 'opacity 0.2s' },
     
     // Sleek checkout summary box!
-    checkoutSection: { marginTop: '20px', paddingTop: '20px', borderTop: '2px solid #f1f5f9', backgroundColor: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0' },
-    totalRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1.2rem', marginBottom: '10px' },
-    checkoutBtn: { width: '100%', padding: '16px', backgroundColor: '#6366f1', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(99, 102, 241, 0.2)' }
+    checkoutSection: { marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #222', backgroundColor: 'rgba(17, 17, 18, 0.5)', padding: '20px', borderRadius: '12px', border: '1px solid #222' },
+    totalRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1.2rem', marginBottom: '10px', color: '#D4AF37' },
+    checkoutBtn: { width: '100%', padding: '16px', backgroundColor: '#D4AF37', color: '#000', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 15px rgba(212, 175, 55, 0.3)' }
 };
 
 export default Shop;

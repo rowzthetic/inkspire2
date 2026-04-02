@@ -1,10 +1,16 @@
 :root {
+  /* Luxury Tattoo Theme */
+  --deep-charcoal: #0a0a0b;
+  --antique-gold: #D4AF37;
+  --parchment: #f0ebe0;
+  --subtle-dark: #222;
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #111; /* Matches your dark theme */
+  color: var(--parchment);
+  background-color: var(--deep-charcoal);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -17,4 +23,50 @@ body {
   min-width: 100vw;
   min-height: 100vh;
   display: block; /* This fixes the gap problem */
+  background-color: var(--deep-charcoal);
+  color: var(--parchment);
+}
+
+.gold-btn {
+  padding: 12px 20px;
+  background-color: transparent;
+  color: var(--antique-gold);
+  border: 1px solid var(--antique-gold);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.gold-btn:hover:not(:disabled) {
+  background-color: var(--antique-gold);
+  color: #000;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+}
+
+.gold-btn:disabled {
+  background-color: #222;
+  color: #555;
+  border: 1px solid #333;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.gold-btn-solid {
+  padding: 16px;
+  background-color: var(--antique-gold);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  transition: all 0.3s ease;
+}
+
+.gold-btn-solid:hover {
+  background-color: #e5be3c;
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
 }

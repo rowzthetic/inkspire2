@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.price",
     "apps.shop",
+    "apps.ai",
     "library",
     # django
     "django.contrib.admin",

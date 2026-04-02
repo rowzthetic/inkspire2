@@ -7,15 +7,52 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    // 1. Check if user is already logged in when app loads
+    // 1. Check if user is already logged in when app loads, and VERIFY token
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const token = localStorage.getItem('access');
+        const checkAuth = async () => {
+            const storedUser = localStorage.getItem('user');
+            const token = localStorage.getItem('access');
+            
+            if (storedUser && token) {
+                try {
+                    const response = await fetch('http://localhost:8000/api/token/verify/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token })
+                    });
+
+                    if (response.ok) {
+                        setUser(JSON.parse(storedUser));
+                    } else {
+                        throw new Error('Token verification failed');
+                    }
+                } catch (error) {
+                    console.warn('Session invalid on load. Clearing session.', error);
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('access');
+                    localStorage.removeItem('refresh');
+                    setUser(null);
+                    
+                    // Redirect to login if they are on a protected route
+                    const path = window.location.pathname;
+                    const isPublicRoute = ['/', '/login', '/signup', '/gallery', '/artists', '/explore', '/shop', '/about', '/forgot-password'].includes(path) || path.startsWith('/artists/');
+                    
+                    if (!isPublicRoute) {
+                        window.location.href = '/login';
+                    }
+                }
+            } else if (storedUser || token) {
+                // Handle inconsistent state where one is present but not the other
+                console.warn('Inconsistent auth state. Clearing session.');
+                localStorage.removeItem('user');
+                localStorage.removeItem('access');
+                localStorage.removeItem('refresh');
+                setUser(null);
+            }
+            setLoading(false);
+        };
         
-        if (storedUser && token) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
+        checkAuth();
     }, []);
 
     // 2. Token Refresh Function
