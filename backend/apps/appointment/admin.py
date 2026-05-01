@@ -14,12 +14,12 @@ class AppointmentAdmin(admin.ModelAdmin):
         "appointment_datetime",
         "status_badge",
         "is_deposit_paid",
+        "is_refunded",
         "reference_preview",
     )
 
     # Filter sidebar
-    list_filter = ("status", "appointment_datetime", "artist", "is_deposit_paid")
-
+    list_filter = ("status", "appointment_datetime", "artist", "is_deposit_paid", "is_refunded")
     # Search box
     search_fields = ("customer__username", "artist__username", "description")
 

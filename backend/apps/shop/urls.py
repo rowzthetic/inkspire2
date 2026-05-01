@@ -3,6 +3,7 @@ from django.urls import path
 from . import views  # <-- THIS IS THE FIXED LINE!
 
 urlpatterns = [
+    path("categories/", views.CategoryListView.as_view(), name="category-list"),
     path("products/", views.ProductListView.as_view(), name="product-list"),
     path(
         "products/<int:pk>/", views.ProductDetailView.as_view(), name="product-detail"
@@ -12,6 +13,11 @@ urlpatterns = [
         "checkout/<int:pk>/",
         views.CreateShopStripeCheckoutView.as_view(),
         name="shop-checkout",
+    ),
+    path(
+        "checkout/<int:pk>/confirm/",
+        views.ConfirmPaymentView.as_view(),
+        name="shop-confirm",
     ),
     path("history/", views.OrderHistoryView.as_view(), name="order-history"),
     path("revenue/", views.RevenueStatsView.as_view(), name="revenue-stats"),

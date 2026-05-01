@@ -44,6 +44,14 @@ export default function Explore() {
               <Link to="/ai-suite" className="btn">Try It</Link>
           </div>
 
+          {/* Feature 5.5 - Stencil Converter */}
+          <div className="explore-card">
+              <img src="images/AI2.png" alt="AI Stencil Converter" />
+              <h3>AI Stencil Converter</h3>
+              <p>Turn any tattoo design or image into a clean, stencil-ready outline.</p>
+              <Link to="/ai-suite" className="btn">Create Stencil</Link>
+          </div>
+
           {/* Feature 6 */}
           <div className="explore-card">
               <img src="images/calc.jpg" alt="Price Estimator" />

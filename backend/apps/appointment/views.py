@@ -193,35 +193,34 @@ class BookAppointmentView(APIView):
     parser_classes = (parsers.MultiPartParser, parsers.FormParser)
 
     def post(self, request):
-        data = {}
+        # Use request.data.copy() to create a mutable copy that includes files (reference_image)
+        data = request.data.copy()
 
-        # Copy non-file fields manually
-        for key, value in request.data.items():
-            if key != "reference_image":
-                data[key] = value
+        # 1. Combine Date + Time into appointment_datetime format
+        date_str = data.get("date")
+        time_str = data.get("time")
+        if date_str and time_str:
+            data["appointment_datetime"] = f"{date_str}T{time_str}"
 
-        # 1. Combine Date + Time
-        if "date" in data and "time" in data:
-            data["appointment_datetime"] = f"{data['date']}T{data['time']}"
-
-        # 2. Force assign Customer
+        # 2. Assign the logged-in user as the Customer
         data["customer"] = request.user.id
 
         # 3. Validate Artist ID
         if "artist" not in data:
-            return Response({"error": "Artist ID is missing!"}, status=400)
+            return Response({"error": "Artist ID is missing!"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 4. Serialize & Save
-        serializer = AppointmentSerializer(data=data)
+        # 4. Serialize with modified data (QueryDict copy preserves files)
+        serializer = AppointmentSerializer(data=data, context={"request": request})
+        
         if serializer.is_valid():
             # Prevent self-booking
             if str(serializer.validated_data["artist"].id) == str(request.user.id):
                 return Response(
                     {"error": "You cannot book an appointment with yourself."},
-                    status=400,
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            # Race condition check
+            # Race condition check (prevent double booking of the same exact slot)
             appt_datetime = serializer.validated_data["appointment_datetime"]
             artist = serializer.validated_data["artist"]
             if Appointment.objects.filter(
@@ -230,16 +229,18 @@ class BookAppointmentView(APIView):
                 status__in=["pending", "confirmed"],
             ).exists():
                 return Response(
-                    {"error": "This slot was just booked by someone else!"}, status=400
+                    {"error": "This slot was just booked by someone else!"}, 
+                    status=status.HTTP_400_BAD_REQUEST
                 )
 
             serializer.save()
             return Response(
-                {"message": "Request Sent!", "id": serializer.data["id"]}, status=201
+                {"message": "Request Sent!", "id": serializer.data["id"]}, 
+                status=status.HTTP_201_CREATED
             )
 
         print("Serializer errors:", serializer.errors)
-        return Response(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ==========================================
@@ -333,21 +334,25 @@ class AppointmentCancelView(APIView):
                 {"error": "Permission denied."}, status=status.HTTP_403_FORBIDDEN
             )
 
-        if (
-            appointment.is_deposit_paid
-            and hasattr(appointment, "stripe_payment_intent_id")
-            and appointment.stripe_payment_intent_id
-        ):
+        if appointment.is_deposit_paid and appointment.stripe_payment_intent_id:
             try:
+                # Trigger Stripe refund
                 stripe.Refund.create(
                     payment_intent=appointment.stripe_payment_intent_id
                 )
+                appointment.is_deposit_paid = False
+                appointment.is_refunded = True
+                print(f"✅ Refund initiated for Appointment {appointment.id}")
             except Exception as e:
-                print(f"Refund Failed: {e}")
-                return Response({"error": f"Refund failed: {str(e)}"}, status=500)
+                print(f"❌ Stripe Refund Failed: {str(e)}")
+                return Response(
+                    {"error": f"Stripe refund failed: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
 
         appointment.status = "cancelled"
         appointment.save()
+
         return Response(
             {"message": "Appointment cancelled and refunded successfully."}, status=200
         )

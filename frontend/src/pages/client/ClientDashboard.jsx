@@ -638,12 +638,20 @@ const ClientDashboard = () => {
             return appointments.filter(apt => new Date(apt.appointment_datetime) < now || apt.status === 'completed');
         } else if (activeTab === 'cancelled') {
             return appointments.filter(apt => apt.status === 'cancelled');
+        } else if (activeTab === 'pending') {
+            return appointments.filter(apt => apt.status === 'pending');
+        } else if (activeTab === 'confirmed') {
+            return appointments.filter(apt => apt.status === 'confirmed' && new Date(apt.appointment_datetime) >= now);
         }
         return appointments;
     };
 
-    const StatCard = ({ icon, label, value, color, subtext }) => (
-        <div className="client-stat-card" style={{ borderLeftColor: color }}>
+    const StatCard = ({ icon, label, value, color, subtext, onClick }) => (
+        <div 
+            className={`client-stat-card ${onClick ? 'interactive' : ''}`} 
+            style={{ borderLeftColor: color, cursor: onClick ? 'pointer' : 'default' }}
+            onClick={onClick}
+        >
             <div className="client-stat-icon" style={{ backgroundColor: `${color}20`, color: color }}>
                 {icon}
             </div>
@@ -704,21 +712,25 @@ const ClientDashboard = () => {
                             icon={<Clock3 size={20} />} label="Pending" 
                             value={statistics.pending || appointments.filter(a => a.status === 'pending').length}
                             color="#f59e0b" subtext="Awaiting artist approval"
+                            onClick={() => setActiveTab('pending')}
                         />
                         <StatCard 
                             icon={<CheckCircle size={20} />} label="Confirmed"
                             value={statistics.confirmed || appointments.filter(a => a.status === 'confirmed').length}
                             color="#10b981" subtext={`${statistics?.upcoming || 0} upcoming`}
+                            onClick={() => setActiveTab('confirmed')}
                         />
                         <StatCard 
                             icon={<CheckCircle size={20} />} label="Completed"
                             value={statistics.completed || appointments.filter(a => a.status === 'completed').length}
                             color="#3b82f6"
+                            onClick={() => setActiveTab('past')}
                         />
                         <StatCard 
                             icon={<XCircle size={20} />} label="Cancelled"
                             value={statistics.cancelled || appointments.filter(a => a.status === 'cancelled').length}
                             color="#ef4444"
+                            onClick={() => setActiveTab('cancelled')}
                         />
                     </div>
                 </div>
@@ -728,11 +740,16 @@ const ClientDashboard = () => {
             <div className="client-tabs-container">
                 <div className="client-tabs">
                     <button className={`client-tab ${activeTab === 'upcoming' ? 'active' : ''}`} onClick={() => setActiveTab('upcoming')}>
-                        <Calendar size={16} /> Upcoming
-                        {activeTab === 'upcoming' && <span className="tab-count">{filteredAppointments.length}</span>}
+                        <Calendar size={16} /> All Upcoming
+                    </button>
+                    <button className={`client-tab ${activeTab === 'pending' ? 'active' : ''}`} onClick={() => setActiveTab('pending')}>
+                         Pending
+                    </button>
+                    <button className={`client-tab ${activeTab === 'confirmed' ? 'active' : ''}`} onClick={() => setActiveTab('confirmed')}>
+                         Confirmed
                     </button>
                     <button className={`client-tab ${activeTab === 'past' ? 'active' : ''}`} onClick={() => setActiveTab('past')}>
-                        <Clock size={16} /> Past
+                        <Clock size={16} /> Past / Completed
                     </button>
                     <button className={`client-tab ${activeTab === 'cancelled' ? 'active' : ''}`} onClick={() => setActiveTab('cancelled')}>
                         <XCircle size={16} /> Cancelled
@@ -748,8 +765,8 @@ const ClientDashboard = () => {
                         <h3>No {activeTab} appointments</h3>
                         <p>{activeTab === 'upcoming' ? "You don't have any upcoming appointments. Book your next tattoo session!" : `No ${activeTab} appointments found.`}</p>
                         {activeTab === 'upcoming' && (
-                            <a href="/appointment" className="book-now-btn">
-                                Book an Appointment <ChevronRight size={16} />
+                            <a href="/artists" className="book-now-btn">
+                                Browse Artists & Book <ChevronRight size={16} />
                             </a>
                         )}
                     </div>
@@ -817,6 +834,8 @@ const ClientDashboard = () => {
                                                             ${appointment.deposit_amount}
                                                             {appointment.is_deposit_paid ? (
                                                                 <span className="paid-badge" style={{color: '#10b981', marginLeft: '10px', fontSize: '0.8rem'}}>✓ Paid</span>
+                                                            ) : appointment.is_refunded ? (
+                                                                <span className="refunded-badge" style={{color: '#f59e0b', marginLeft: '10px', fontSize: '0.8rem'}}>↺ Refunded</span>
                                                             ) : (
                                                                 <span className="pending-badge" style={{color: '#f59e0b', marginLeft: '10px', fontSize: '0.8rem'}}>Pending</span>
                                                             )}

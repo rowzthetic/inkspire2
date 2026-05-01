@@ -175,11 +175,23 @@ from rest_framework import filters, generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Order, OrderItem, Product
-from .serializers import CreateOrderSerializer, OrderSerializer, ProductSerializer
+from .models import Category, Order, OrderItem, Product
+from .serializers import (
+    CategorySerializer,
+    CreateOrderSerializer,
+    OrderSerializer,
+    ProductSerializer,
+)
 
 # Ensure you have your Stripe Secret Key in your settings.py!
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+# 0. Category List (Public)
+class CategoryListView(generics.ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.AllowAny]
 
 
 # 1. Product List (Public)
@@ -282,6 +294,16 @@ class CreateShopStripeCheckoutView(APIView):
             return Response({"error": str(e)}, status=500)
 
 
+class ConfirmPaymentView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        order = get_object_or_404(Order, pk=pk, user=request.user)
+        order.status = "paid"
+        order.save()
+        return Response({"message": "Order status updated to PAID"}, status=200)
+
+
 # 5. Order History
 class OrderHistoryView(generics.ListAPIView):
     serializer_class = OrderSerializer
@@ -313,14 +335,23 @@ class RevenueStatsView(APIView):
         elif period == "custom" and start_param:
             try:
                 from django.utils.dateparse import parse_date
+
                 parsed_start = parse_date(start_param)
                 if parsed_start:
-                    start_date = timezone.make_aware(timezone.datetime.combine(parsed_start, timezone.datetime.min.time()))
-                
+                    start_date = timezone.make_aware(
+                        timezone.datetime.combine(
+                            parsed_start, timezone.datetime.min.time()
+                        )
+                    )
+
                 if end_param:
                     parsed_end = parse_date(end_param)
                     if parsed_end:
-                        end_date = timezone.make_aware(timezone.datetime.combine(parsed_end, timezone.datetime.max.time()))
+                        end_date = timezone.make_aware(
+                            timezone.datetime.combine(
+                                parsed_end, timezone.datetime.max.time()
+                            )
+                        )
             except Exception:
                 pass
         else:
@@ -349,9 +380,7 @@ class RevenueStatsView(APIView):
 @csrf_exempt
 def stripe_webhook(request):
     payload = request.body
-    print("-------")
-    print(payload)
-    print("-------")
+
     sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
     endpoint_secret = getattr(settings, "STRIPE_WEBHOOK_SECRET", "")
 

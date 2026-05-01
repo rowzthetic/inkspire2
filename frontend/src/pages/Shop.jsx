@@ -4,6 +4,7 @@ import toast, { Toaster } from 'react-hot-toast';
 const Shop = () => {
     // State Management
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]); // New Category state
     const [cart, setCart] = useState([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -12,21 +13,28 @@ const Shop = () => {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [sortOrder, setSortOrder] = useState("default");
 
-    // Fetch Products from Django Backend
+    // Fetch Products & Categories from Django Backend
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/shop/products/');
-                const data = await response.json();
-                setProducts(data);
+                // Fetch Products
+                const pRes = await fetch('http://localhost:8000/api/shop/products/');
+                const pData = await pRes.json();
+                setProducts(pData);
+                
+                // Fetch Categories
+                const cRes = await fetch('http://localhost:8000/api/shop/categories/');
+                const cData = await cRes.json();
+                setCategories(cData);
+                
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching products:', error);
-                toast.error("Failed to load products."); 
+                console.error('Error fetching shop data:', error);
+                toast.error("Failed to load shop items."); 
                 setLoading(false);
             }
         };
-        fetchProducts();
+        fetchData();
     }, []);
 
     // Handle Stripe Redirects
@@ -34,7 +42,23 @@ const Shop = () => {
         const query = new URLSearchParams(window.location.search);
         
         if (query.get("payment") === "success") {
-            toast.success("Payment successful! Thank you for your order.", { duration: 5000 }); 
+            const orderId = query.get("order_id");
+            const token = localStorage.getItem('access');
+
+            if (orderId && token) {
+                // Manually trigger payment confirmation so the order status updates immediately
+                fetch(`http://localhost:8000/api/shop/checkout/${orderId}/confirm/`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+                .then(() => {
+                    toast.success("Payment successful! Your order is now being processed.", { duration: 6000 });
+                })
+                .catch(err => console.error("Confirmation error:", err));
+            } else {
+                toast.success("Payment successful! Thank you for your order.", { duration: 5000 });
+            }
+
             setCart([]); 
             window.history.replaceState(null, '', window.location.pathname);
         }
@@ -45,12 +69,11 @@ const Shop = () => {
         }
     }, []);
 
-    // --- FRONTEND MAGIC: Filter & Sort Logic ---
-    const categories = ["All", ...new Set(products.map(p => p.category).filter(Boolean))];
-
+    // Filter Logic
     let displayedProducts = products.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
+        // Match by ID string (since select values are strings)
+        const matchesCategory = selectedCategory === "All" || String(product.category) === selectedCategory;
         return matchesSearch && matchesCategory;
     });
 
@@ -164,7 +187,8 @@ const Shop = () => {
                 
                 <div style={styles.filterGroup}>
                     <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} style={styles.selectInput}>
-                        {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                        <option value="All">All Categories</option>
+                        {categories.map(cat => <option key={cat.id} value={String(cat.id)}>{cat.name}</option>)}
                     </select>
                     <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} style={styles.selectInput}>
                         <option value="default">Sort: Default</option>
@@ -193,7 +217,11 @@ const Shop = () => {
                         </div>
                         
                         <div style={{marginTop: '10px'}}>
-                            {product.category && <span style={styles.categoryTag}>{product.category.toUpperCase()}</span>}
+                            {product.category_details && (
+                                <span style={styles.categoryTag}>
+                                    {product.category_details.name.toUpperCase()}
+                                </span>
+                            )}
                             <h3 style={{ margin: '5px 0' }}>{product.name}</h3>
                         </div>
                         

@@ -623,9 +623,10 @@ import {
   Settings, User, Upload, Trash2, Plus, MapPin,
   Instagram, Type, TrendingUp, CheckCircle,
   AlertCircle, LayoutDashboard, CreditCard, FileText,
-  Heart, ChevronDown, ChevronUp, X
+  Heart, ChevronDown, ChevronUp, X, Maximize2, ShoppingBag, 
+  Package, Edit3, Trash
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './ArtistDashboard.css';
 import ArtistAppointments from '../components/Dashboard/ArtistAppointments';
@@ -760,15 +761,30 @@ const HealingNotesSection = ({ clients }) => {
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 const ArtistDashboard = () => {
-  const [activeTab, setActiveTab] = useState('appointments');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('section') || 'appointments');
   const [artistData, setArtistData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [healingClients, setHealingClients] = useState([]);
+  const [showProfilePreview, setShowProfilePreview] = useState(false);
   const navigate = useNavigate();
 
   const auth = useAuth();
   const logoutUser = auth?.logoutUser || (() => window.location.href = '/login');
+
+  // Sync activeTab with URL parameter
+  useEffect(() => {
+    const section = searchParams.get('section');
+    if (section && section !== activeTab) {
+      setActiveTab(section);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchParams({ section: tab });
+  };
 
   const fetchDashboard = async () => {
     try {
@@ -825,7 +841,12 @@ const ArtistDashboard = () => {
             <div className="logo-icon"></div>
             <h2 className="brand-name">INKSPIRE</h2>
           </div>
-          <div className="artist-snippet">
+          <div 
+            className="artist-snippet" 
+            onClick={() => setShowProfilePreview(true)}
+            style={{ cursor: 'pointer', transition: 'background 0.2s' }}
+            title="Preview Public Profile"
+          >
             <div className="snippet-avatar">
               {artistData?.profile_picture ? (
                 <img src={artistData.profile_picture.startsWith('http') ? artistData.profile_picture : `${API_BASE_URL}${artistData.profile_picture}`} alt="Profile" />
@@ -834,17 +855,20 @@ const ArtistDashboard = () => {
               )}
             </div>
             <div className="snippet-info">
-              <p className="role-label">Artist</p>
+              <p className="role-label" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                Artist <Maximize2 size={10} />
+              </p>
               <p className="artist-name">{artistData?.username}</p>
             </div>
           </div>
           <nav className="nav-menu">
-            <NavButton icon={<LayoutDashboard size={20} />} label="Appointments" active={activeTab === 'appointments'} onClick={() => setActiveTab('appointments')} />
-            <NavButton icon={<Clock size={20} />} label="Schedule" active={activeTab === 'schedule'} onClick={() => setActiveTab('schedule')} />
-            <NavButton icon={<Camera size={20} />} label="Portfolio" active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
-            <NavButton icon={<DollarSign size={20} />} label="Revenue" active={activeTab === 'revenue'} onClick={() => setActiveTab('revenue')} />
-            <NavButton icon={<Heart size={20} />} label="Healing" active={activeTab === 'healing'} onClick={() => setActiveTab('healing')} />
-            <NavButton icon={<Settings size={20} />} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
+            <NavButton icon={<LayoutDashboard size={20} />} label="Appointments" active={activeTab === 'appointments'} onClick={() => handleTabChange('appointments')} />
+            <NavButton icon={<Clock size={20} />} label="Schedule" active={activeTab === 'schedule'} onClick={() => handleTabChange('schedule')} />
+            <NavButton icon={<Camera size={20} />} label="Portfolio" active={activeTab === 'profile'} onClick={() => handleTabChange('profile')} />
+            <NavButton icon={<DollarSign size={20} />} label="Revenue" active={activeTab === 'revenue'} onClick={() => handleTabChange('revenue')} />
+            <NavButton icon={<ShoppingBag size={20} />} label="Shop" active={false} onClick={() => navigate('/shop')} />
+            <NavButton icon={<Heart size={20} />} label="Healing" active={activeTab === 'healing'} onClick={() => handleTabChange('healing')} />
+            <NavButton icon={<Settings size={20} />} label="Settings" active={activeTab === 'settings'} onClick={() => handleTabChange('settings')} />
           </nav>
         </div>
         <button onClick={logoutUser} className="logout-btn">
@@ -873,6 +897,114 @@ const ArtistDashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* ── Public Profile Preview Modal ── */}
+      {showProfilePreview && (
+        <div 
+          className="modal-overlay" 
+          onClick={() => setShowProfilePreview(false)}
+          style={{ zIndex: 2000, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }}
+        >
+          <div 
+            className="modal-content" 
+            onClick={e => e.stopPropagation()} 
+            style={{ 
+              maxWidth: '900px', 
+              maxHeight: '90vh', 
+              overflowY: 'auto', 
+              padding: 0, 
+              background: '#0e0e0e',
+              border: '1px solid #27272a'
+            }}
+          >
+            <div className="modal-header" style={{ position: 'sticky', top: 0, zIndex: 10, background: '#18181b', borderBottom: '1px solid #27272a' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ background: '#378ADD22', color: '#378ADD', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>PREVIEW MODE</div>
+                <h3 style={{ margin: 0, fontSize: '16px', color: 'white' }}>Public Artist Profile</h3>
+              </div>
+              <button className="close-btn" onClick={() => setShowProfilePreview(false)}><X size={22} /></button>
+            </div>
+
+            {/* Simulated Public Profile Content */}
+            <div style={{ paddingBottom: '40px' }}>
+              <div style={{ 
+                height: '200px', 
+                background: `linear-gradient(to bottom, rgba(0,0,0,0.2), #0e0e0e), url("https://images.unsplash.com/photo-1590208655480-11634bbd4791?auto=format&fit=crop&q=80&w=1500")`, 
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}></div>
+              
+              <div style={{ padding: '0 40px', marginTop: '-60px' }}>
+                <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-end', marginBottom: '30px' }}>
+                  <div style={{ 
+                    width: '150px', 
+                    height: '150px', 
+                    borderRadius: '12px', 
+                    border: '4px solid #0e0e0e', 
+                    overflow: 'hidden', 
+                    background: '#18181b',
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.5)'
+                  }}>
+                    {artistData?.profile_picture ? (
+                      <img src={artistData.profile_picture.startsWith('http') ? artistData.profile_picture : `${API_BASE_URL}${artistData.profile_picture}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Avatar" />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><User size={50} color="#333" /></div>
+                    )}
+                  </div>
+                  <div style={{ paddingBottom: '12px' }}>
+                    <h1 style={{ color: 'white', margin: 0, fontSize: '32px', fontWeight: '800' }}>{artistData?.username}</h1>
+                    <p style={{ color: '#EF9F27', margin: '4px 0 12px', fontSize: '14px', fontWeight: '600', letterSpacing: '1px' }}>{artistData?.styles?.toUpperCase() || 'PROFESSIONAL ARTIST'}</p>
+                    <div style={{ display: 'flex', gap: '15px', color: '#a1a1aa', fontSize: '13px' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={14} /> {artistData?.city || "Auckland"}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>• {artistData?.shop_name || "Inkspire Studio"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '40px' }}>
+                  <div>
+                    <h4 style={{ color: 'white', borderBottom: '1px solid #27272a', paddingBottom: '10px', marginBottom: '15px' }}>About Artist</h4>
+                    <p style={{ color: '#a1a1aa', lineHeight: '1.6', fontSize: '14px' }}>{artistData?.bio || "This artist hasn't written a biography yet. View their portfolio to see their distinct style and latest creations."}</p>
+                    
+                    <h4 style={{ color: 'white', borderBottom: '1px solid #27272a', paddingBottom: '10px', marginTop: '40px', marginBottom: '20px' }}>Portfolio Showcase</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '15px' }}>
+                      {artistData?.portfolio && artistData.portfolio.length > 0 ? (
+                        artistData.portfolio.map(img => (
+                          <div key={img.id} style={{ aspectRatio: '1/1', overflow: 'hidden', borderRadius: '8px', border: '1px solid #27272a' }}>
+                            <img src={img.image.startsWith('http') ? img.image : `${API_BASE_URL}${img.image}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="work" />
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{ padding: '40px', textAlign: 'center', border: '2px dashed #27272a', borderRadius: '12px', gridColumn: '1/-1' }}>
+                          <Camera size={32} color="#333" style={{ marginBottom: '10px' }} />
+                          <p style={{ color: '#555', fontSize: '13px' }}>Portfolio is empty</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 style={{ color: 'white', borderBottom: '1px solid #27272a', paddingBottom: '10px', marginBottom: '15px' }}>Working Hours</h4>
+                    <div style={{ background: '#18181b', padding: '20px', borderRadius: '12px', border: '1px solid #27272a' }}>
+                      {artistData.schedule?.map(day => (
+                        <div key={day.id} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '13px' }}>
+                          <span style={{ color: '#eee' }}>{day.day_name}</span>
+                          <span style={{ color: day.is_active ? '#EF9F27' : '#555', fontWeight: day.is_active ? 'bold' : 'normal' }}>
+                            {day.is_active ? `${day.start_time.slice(0,5)} - ${day.end_time.slice(0,5)}` : 'Closed'}
+                          </span>
+                        </div>
+                      ))}
+                      <button disabled style={{ width: '100%', marginTop: '20px', background: '#3f3f46', border: 'none', color: '#a1a1aa', padding: '12px', borderRadius: '8px', cursor: 'not-allowed', fontSize: '13px' }}>
+                        Book Appointment (Disabled in Preview)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -1032,15 +1164,108 @@ const RevenueSection = () => {
       const doc = new jsPDF();
       const shopRev = Number(stats?.total_revenue || 0);
       const apptRev = Number(stats?.paidDeposits || 0);
-      doc.setFontSize(20); doc.setTextColor(99, 102, 241);
-      doc.text("INKSPIRE FINANCIAL REPORT", 14, 22);
+      const totalRev = shopRev + apptRev;
+      const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      const time = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+      // 1. Professional Header
+      doc.setFillColor(15, 23, 42); // Navy Dark
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      doc.setFontSize(22);
+      doc.setTextColor(255, 255, 255);
+      doc.text("INKSPIRE", 14, 25);
+      
+      doc.setFontSize(10);
+      doc.setTextColor(200, 200, 200);
+      doc.text("Artist Financial Intelligence Report", 14, 32);
+      
+      doc.setFontSize(9);
+      doc.text(`Generated: ${date} at ${time}`, 150, 32);
+
+      // 2. Executive Summary
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(14);
+      doc.text("EXECUTIVE SUMMARY", 14, 55);
+      doc.setDrawColor(226, 232, 240);
+      doc.line(14, 58, 196, 58);
+
+      // Metric Blocks
+      doc.setFontSize(9);
+      doc.setTextColor(100, 116, 139);
+      doc.text("TOTAL ESTIMATED REVENUE", 14, 70);
+      doc.text("PERIOD FILTER", 85, 70);
+      doc.text("TOTAL TRANSACTIONS", 150, 70);
+
+      doc.setFontSize(16);
+      doc.setTextColor(16, 185, 129); // Emerald Green
+      doc.text(`$${totalRev.toFixed(2)} USD`, 14, 78);
+      
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(12);
+      doc.text(period.toUpperCase(), 85, 78);
+      doc.text(String(paidTransactions.length), 150, 78);
+
+      // 3. Visual Analysis (Simulated Comparison Chart)
+      doc.setFontSize(14);
+      doc.text("REVENUE DISTRIBUTION", 14, 100);
+      doc.line(14, 103, 196, 103);
+
+      const chartY = 115;
+      const maxBarWidth = 100;
+      const shopBarWidth = totalRev > 0 ? (shopRev / totalRev) * maxBarWidth : 0;
+      const apptBarWidth = totalRev > 0 ? (apptRev / totalRev) * maxBarWidth : 0;
+
+      // Shop Analytics Bar
+      doc.setFontSize(10);
+      doc.setTextColor(100, 116, 139);
+      doc.text("Shop Products", 14, chartY + 6);
+      doc.setFillColor(99, 102, 241); // Indigo
+      doc.rect(50, chartY, Math.max(1, shopBarWidth), 10, 'F');
+      doc.setTextColor(15, 23, 42);
+      doc.text(`$${shopRev.toFixed(2)} (${totalRev > 0 ? Math.round((shopRev/totalRev)*100) : 0}%)`, 55 + shopBarWidth, chartY + 6.5);
+
+      // Appointment Analytics Bar
+      doc.setTextColor(100, 116, 139);
+      doc.text("Deposits", 14, chartY + 21);
+      doc.setFillColor(16, 185, 129); // Emerald
+      doc.rect(50, chartY + 15, Math.max(1, apptBarWidth), 10, 'F');
+      doc.setTextColor(15, 23, 42);
+      doc.text(`$${apptRev.toFixed(2)} (${totalRev > 0 ? Math.round((apptRev/totalRev)*100) : 0}%)`, 55 + apptBarWidth, chartY + 21.5);
+
+      // 4. Detailed Transaction Ledger
+      doc.setFontSize(14);
+      doc.text("DETAILED TRANSACTION LEDGER", 14, 155);
+      
       autoTable(doc, {
-        startY: 35, head: [['Revenue Stream', 'Total Amount']],
-        body: [["Shop Product Sales", `$${shopRev.toFixed(2)}`], ["Appointment Deposits", `$${apptRev.toFixed(2)}`], ["Total Gross Revenue", `$${(shopRev + apptRev).toFixed(2)}`]],
-        headStyles: { fillColor: [99, 102, 241] }, theme: 'striped'
+        startY: 160,
+        head: [['Customer / Client', 'Service Date', 'Category', 'Amount (USD)']],
+        body: paidTransactions.map(t => [
+          t.customer_name, 
+          new Date(t.appointment_datetime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          'Booking Deposit',
+          `$${Number(t.deposit_amount).toFixed(2)}`
+        ]),
+        headStyles: { fillColor: [15, 23, 42], fontSize: 10, fontStyle: 'bold' },
+        bodyStyles: { fontSize: 9, textColor: [51, 65, 85] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        margin: { top: 160 }
       });
-      doc.save(`Inkspire_Report_${period}.pdf`);
-    } catch (err) { console.error("PDF CRASH DETAILS:", err); alert("PDF Error: " + err.message); }
+
+      // Footer with Page Numbering
+      const totalPages = doc.internal.getNumberOfPages();
+      for(let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(148, 163, 184);
+        doc.text(`Page ${i} / ${totalPages}  |  Proprietary Financial Data  |  Generated via Inkspire Artist Portal`, 105, 285, null, null, "center");
+      }
+
+      doc.save(`Inkspire_Financial_Report_${date.replace(/ /g, '_')}.pdf`);
+    } catch (err) { 
+      console.error("PDF Generation Failed:", err); 
+      alert("Error generating professional report. Check console for details."); 
+    }
   };
 
   useEffect(() => {
@@ -1188,8 +1413,92 @@ const TimeInput = ({ label, value, onChange }) => (
   </div>
 );
 
+/* --- 6. SHOP MANAGEMENT SECTION --- */
+const ShopSection = () => {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/api/shop/list/`)
+            .then(res => res.json())
+            .then(data => {
+                setProducts(data || []);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error("Shop fetch error:", err);
+                setLoading(false);
+            });
+    }, []);
+
+    if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>Loading Inventory...</div>;
+
+    return (
+        <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+                <div>
+                    <h3 style={{ fontSize: '20px', margin: 0, fontWeight: 'bold', color: 'white' }}>Product Inventory</h3>
+                    <p style={{ color: '#a1a1aa', fontSize: '14px', margin: '4px 0 0' }}>Monitor stock levels and pricing for shop items.</p>
+                </div>
+                <button className="save-btn-primary" style={{ background: '#6366f1' }}>
+                    <Plus size={18} /> Add Product
+                </button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                {products.length === 0 ? (
+                    <div style={{ gridColumn: '1/-1', padding: '60px', textAlign: 'center', background: 'rgba(255,255,255,0.02)', border: '1px dashed #27272a', borderRadius: '12px' }}>
+                        <Package size={40} color="#333" style={{ marginBottom: '15px' }} />
+                        <p style={{ color: '#555' }}>No products found in the shop.</p>
+                    </div>
+                ) : (
+                    products.map(product => (
+                        <div key={product.id} style={{ background: '#18181b', border: '1px solid #27272a', borderRadius: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ height: '180px', background: '#0e0e0e', position: 'relative' }}>
+                                {product.image ? (
+                                    <img src={product.image.startsWith('http') ? product.image : `${API_BASE_URL}${product.image}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={product.name} />
+                                ) : (
+                                    <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Package size={40} color="#222" /></div>
+                                )}
+                                <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.6)', padding: '4px 10px', borderRadius: '20px', fontSize: '12px', color: '#EF9F27', fontWeight: 'bold', backdropFilter: 'blur(4px)' }}>
+                                    ${parseFloat(product.price).toFixed(2)}
+                                </div>
+                            </div>
+                            <div style={{ padding: '16px', flex: 1 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                    <h4 style={{ color: 'white', margin: 0, fontSize: '16px' }}>{product.name}</h4>
+                                    <span style={{ fontSize: '10px', background: '#27272a', color: '#a1a1aa', padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 'bold' }}>{product.category}</span>
+                                </div>
+                                <p style={{ color: '#a1a1aa', fontSize: '13px', lineHeight: '1.4', margin: '0 0 16px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{product.description}</p>
+                                
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid #27272a' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: product.stock_quantity > 0 ? '#10b981' : '#ef4444' }}></div>
+                                        <span style={{ fontSize: '12px', color: product.stock_quantity > 0 ? '#eee' : '#ef4444' }}>{product.stock_quantity} in stock</span>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button title="Edit" style={{ background: '#27272a', border: 'none', color: '#a1a1aa', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}><Edit3 size={14} /></button>
+                                        <button title="Delete" style={{ background: '#27272a', border: 'none', color: '#ef4444', padding: '6px', borderRadius: '6px', cursor: 'pointer' }}><Trash size={14} /></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
+    );
+};
+
 const getHeaderTitle = (tab) => {
-  const titles = { appointments: 'Appointment Requests', schedule: 'Weekly Schedule', profile: 'Portfolio Gallery', revenue: 'Financial Overview', settings: 'Studio Settings', healing: 'Healing Notes' };
+  const titles = { 
+    appointments: 'Appointment Requests', 
+    schedule: 'Weekly Schedule', 
+    profile: 'Portfolio Gallery', 
+    revenue: 'Financial Overview', 
+    settings: 'Studio Settings', 
+    healing: 'Healing Notes' 
+  };
   return titles[tab] || 'Dashboard';
 };
 

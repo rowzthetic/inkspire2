@@ -95,6 +95,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
             "price_quote",
             "deposit_amount",
             "is_deposit_paid",
+            "is_refunded",
             "rejection_reason",
             "artist_notes",
         ]

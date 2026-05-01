@@ -98,6 +98,7 @@ class Appointment(BaseModel):
         help_text="Required deposit amount",
     )
     is_deposit_paid = models.BooleanField(default=False)
+    is_refunded = models.BooleanField(default=False)
     stripe_payment_intent_id = models.CharField(max_length=255, blank=True, null=True)
 
     # --- 6. ADMIN/STATUS ---
@@ -182,7 +183,9 @@ class HealingLog(BaseModel):
     pain_level = models.PositiveSmallIntegerField(default=0)
     symptoms = models.JSONField(default=list)  # e.g., ["Redness", "Swelling"]
     personal_notes = models.TextField(blank=True)
-    artist_feedback = models.TextField(blank=True, help_text="Artist response to this log")
+    artist_feedback = models.TextField(
+        blank=True, help_text="Artist response to this log"
+    )
 
     class Meta:
         unique_together = ("appointment", "day")

@@ -1,10 +1,14 @@
 from rest_framework import serializers
+from .models import Order, OrderItem, Product, Category
 
-from .models import Order, OrderItem, Product
-
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug']
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.ReadOnlyField(source='category.name')
+    category_details = CategorySerializer(source='category', read_only=True)
+    
     class Meta:
         model = Product
         fields = [
@@ -12,11 +16,11 @@ class ProductSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "price",
-            "category",
+            "category",  # Returns the ID
+            "category_details", # Returns object with .name
             "stock_quantity",
             "image",
         ]
-
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
@@ -24,7 +28,6 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ["product", "product_name", "quantity", "price_at_purchase"]
-
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
@@ -42,14 +45,7 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["user", "total_price", "status", "created_at"]
 
-
-# Serializer to handle INPUT for creating an order
 class CreateOrderSerializer(serializers.Serializer):
-    # {
-    #   "shipping_address": "123 Street...",
-    #   "items": [ {"product_id": "uuid...", "quantity": 2} ]
-    # }
-
     shipping_address = serializers.CharField()
     items = serializers.ListField(
         child=serializers.DictField(

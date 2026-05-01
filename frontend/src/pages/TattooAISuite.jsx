@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import './TattooAISuite.css';
 
 export default function TattooAISuite() {
-  const [activeTab, setActiveTab] = useState('preview'); // 'preview' | 'generate'
+  const [activeTab, setActiveTab] = useState('preview'); // 'preview' | 'generate' | 'stencil'
   const [prompt, setPrompt] = useState("");
   
   const [skinFile, setSkinFile] = useState(null);
@@ -89,6 +89,10 @@ export default function TattooAISuite() {
       setError("Please upload both a body image and a tattoo design.");
       return;
     }
+    if (activeTab === 'stencil' && !tattooFile) {
+      setError("Please upload a tattoo design to convert into a stencil.");
+      return;
+    }
 
     setLoading(true);
 
@@ -97,6 +101,8 @@ export default function TattooAISuite() {
     
     if (activeTab === 'generate') {
       formData.append("prompt", prompt);
+    } else if (activeTab === 'stencil') {
+      formData.append("tattoo_image", tattooFile);
     } else {
       formData.append("skin_image", skinFile);
       formData.append("tattoo_image", tattooFile);
@@ -170,6 +176,12 @@ export default function TattooAISuite() {
           onClick={() => { setActiveTab('generate'); setResultImage(null); setError(null); }}
         >
           AI Design Generator
+        </button>
+        <button 
+          className={`ai-tab ${activeTab === 'stencil' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('stencil'); setResultImage(null); setError(null); }}
+        >
+          AI Stencil Generator
         </button>
       </div>
 
@@ -313,6 +325,33 @@ export default function TattooAISuite() {
                 )}
               </>
             )}
+            
+            {activeTab === 'stencil' && (
+              <div className="ai-upload-grid" style={{ gridTemplateColumns: '1fr', maxWidth: '500px', margin: '0 auto' }}>
+                <div 
+                  className="ai-dropzone"
+                  onClick={() => tattooInputRef.current.click()}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, setTattooFile, setTattooPreviewUrl)}
+                >
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    ref={tattooInputRef} 
+                    onChange={(e) => handleFileChange(e, setTattooFile, setTattooPreviewUrl)}
+                  />
+                  {tattooPreviewUrl ? (
+                    <img src={tattooPreviewUrl} className="ai-preview-image" alt="Stencil source" />
+                  ) : (
+                    <>
+                      <div className="ai-dropzone-icon">📓</div>
+                      <div className="ai-dropzone-text">Click or drop image to convert to Stencil</div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
 
             {activeTab === 'generate' && (
               <div className="ai-input-group">
@@ -329,9 +368,9 @@ export default function TattooAISuite() {
             <button 
               className="ai-submit-btn" 
               onClick={handleSubmit}
-              disabled={loading || (activeTab === 'preview' && (!skinFile || !tattooFile)) || (activeTab === 'generate' && !prompt.trim())}
+              disabled={loading || (activeTab === 'preview' && (!skinFile || !tattooFile)) || (activeTab === 'generate' && !prompt.trim()) || (activeTab === 'stencil' && !tattooFile)}
             >
-              {activeTab === 'preview' ? "Preview on Skin" : "Generate Tattoo"}
+              {activeTab === 'preview' ? "Preview on Skin" : activeTab === 'stencil' ? "Generate Stencil" : "Generate Tattoo"}
             </button>
           </div>
         )}

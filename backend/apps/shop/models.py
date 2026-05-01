@@ -4,20 +4,27 @@ from django.db import models
 from core.models import BaseModel
 
 
-class Product(BaseModel):
-    CATEGORY_CHOICES = [
-        ("supplies", "Tattoo Supplies (Ink/Needles)"),
-        ("aftercare", "Aftercare (Balms/Lotions)"),
-        ("merch", "Merchandise (T-Shirts/Stickers)"),
-    ]
+class Category(BaseModel):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
 
+    class Meta:
+        verbose_name_plural = "Categories"
+
+    def __str__(self):
+        return self.name
+
+
+class Product(BaseModel):
     name = models.CharField(max_length=200)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.CharField(
-        max_length=20,
-        choices=CATEGORY_CHOICES,
-        default="merch",
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="products",
     )
 
     # Inventory Management
@@ -47,6 +54,7 @@ class Order(BaseModel):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     shipping_address = models.TextField()
+    is_refunded = models.BooleanField(default=False)
 
     payment_id = models.CharField(max_length=100, blank=True, null=True)
 
@@ -69,9 +77,12 @@ class OrderItem(BaseModel):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.quantity}x {self.product.name}"
-    
-
-    
+        return f"{self.quantity}x {self.product.name if self.product else 'Unknown Product'}"
 
 
+# 👇 PROXY MODEL FOR REVENUE DASHBOARD IN ADMIN 👇
+class ShopRevenue(Order):
+    class Meta:
+        proxy = True
+        verbose_name = "Shop Revenue Summary"
+        verbose_name_plural = "Shop Revenue Summaries"

@@ -5,7 +5,7 @@ import os
 import requests
 from openai import OpenAI
 from rest_framework import status
-from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -147,7 +147,9 @@ class TattooPreviewView(APIView):
         elif mode == "generate":
             prompt = request.data.get("prompt")
             if not prompt:
-                return Response({"error": "Prompt required for generation."}, status=400)
+                return Response(
+                    {"error": "Prompt required for generation."}, status=400
+                )
 
             try:
                 # INTEGRATED DIRECT TATTOO DESIGN GENERATION
@@ -182,7 +184,7 @@ class TattooPreviewView(APIView):
                 images = getattr(message, "images", None)
                 if not images and hasattr(message, "__dict__"):
                     images = message.__dict__.get("images")
-                
+
                 if images:
                     image_data_url = images[0]["image_url"]["url"]
                     return Response(
@@ -194,6 +196,68 @@ class TattooPreviewView(APIView):
                     )
                 else:
                     raise ValueError("Failed to generate design image.")
+
+            except Exception as e:
+                return Response({"error": str(e)}, status=500)
+
+        elif mode == "stencil":
+            # Extract the raw design to be converted to a stencil
+            tattoo_file = request.FILES.get("tattoo_image")
+            if not tattoo_file:
+                return Response(
+                    {"error": "Image required for stencil conversion."}, status=400
+                )
+
+            tattoo_b64 = self.encode_image(tattoo_file)
+
+            try:
+                messages = [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": (
+                                    "Please convert the provided tattoo design into a professional, high-contrast "
+                                    "black and white thermal stencil outline. Instructions: 1. Remove all shading, "
+                                    "colors, and textures. 2. Extract only the core line-work. 3. Output as pure "
+                                    "black ink on a solid white background. 4. Preserve the exact proportions and "
+                                    "intricate detail of the original design. The result must be ready for printing."
+                                ),
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{tattoo_b64}"
+                                },
+                            },
+                        ],
+                    }
+                ]
+
+                response = client.chat.completions.create(
+                    model="google/gemini-2.5-flash-image",
+                    messages=messages,
+                    extra_body={"modalities": ["image", "text"]},
+                )
+
+                message = response.choices[0].message
+                images = getattr(message, "images", None)
+                if not images and hasattr(message, "__dict__"):
+                    images = message.__dict__.get("images")
+
+                if images:
+                    return Response(
+                        {
+                            "image_url": images[0]["image_url"]["url"],
+                            "message": "Stencil conversion successful.",
+                        },
+                        status=status.HTTP_200_OK,
+                    )
+                else:
+                    raise ValueError(
+                        "Failed to extract stencil image from AI response."
+                    )
 
             except Exception as e:
                 return Response({"error": str(e)}, status=500)
@@ -287,6 +351,7 @@ class TattooConsultantView(APIView):
                 status=status.HTTP_502_BAD_GATEWAY,
             )
 
+
 class TattooLibraryAIView(APIView):
     permission_classes = [AllowAny]
 
@@ -295,7 +360,9 @@ class TattooLibraryAIView(APIView):
         if not name:
             return Response({"error": "Tattoo name is required."}, status=400)
 
-        api_key = os.getenv("VITE_OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_KEY")
+        api_key = os.getenv("VITE_OPENROUTER_API_KEY") or os.getenv(
+            "OPENROUTER_API_KEY"
+        )
         if not api_key:
             return Response({"error": "AI API key not configured."}, status=500)
 
@@ -326,17 +393,17 @@ class TattooLibraryAIView(APIView):
             response = client.chat.completions.create(
                 model="google/gemini-2.0-flash-001",
                 messages=[{"role": "user", "content": prompt}],
-                response_format={"type": "json_object"}
+                response_format={"type": "json_object"},
             )
-            
+
             content = response.choices[0].message.content
             # Clean up potential markdown formatting
             content = content.replace("```json", "").replace("```", "").strip()
-            
+
             data = json.loads(content)
             # Add a mock ID for frontend
             data["id"] = int(base64.b64encode(name.encode()).hex()[:6], 16)
-            
+
             return Response(data, status=200)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
