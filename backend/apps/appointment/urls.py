@@ -61,7 +61,12 @@ from .views import (
     CreateStripeCheckoutView,  # 👈 Added this
     StripePaymentSuccessView,
       HealingNotesView,
-        HealingReminderView  # 👈 Added this
+    HealingReminderView,
+    ActiveHealingAppointmentView,
+    ClientHealingTrackerView,
+    UploadHealingPhotoView,
+    ArtistFeedbackView,
+    HealingMessageView
 )
 
 urlpatterns = [
@@ -117,4 +122,11 @@ urlpatterns = [
 
     path('healing-notes/<int:appointment_id>/', HealingNotesView.as_view()),
     path('healing-reminders/', HealingReminderView.as_view()),
+
+    # --- Healing Tracker Endpoints ---
+    path('active-healing/', ActiveHealingAppointmentView.as_view()),
+    path('healing-tracker/<int:appointment_id>/', ClientHealingTrackerView.as_view()),
+    path('healing-photo/<int:log_id>/', UploadHealingPhotoView.as_view()),
+    path('artist-feedback/<int:log_id>/', ArtistFeedbackView.as_view()),
+    path('healing-messages/<int:appointment_id>/', HealingMessageView.as_view()),
 ]

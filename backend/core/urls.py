@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 # ✅ FIXED IMPORTS: Added Dashboard Views here
 from apps.users.views import (
@@ -10,19 +10,18 @@ from apps.users.views import (
     ArtistDetailView,
     ArtistListView,  # 👈
     CustomTokenObtainPairView,
+    GlobalGalleryView,
     ManagePortfolioView,
     UpdateArtistProfileView,
     UpdateScheduleView,
-    GlobalGalleryView,
 )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    
     # --- Authentication & Users ---
     # This includes your login/register/verify-otp
+    path("api/token/verify/", TokenVerifyView.as_view()),
     path("api/auth/", include("apps.users.urls")),
-    
     # --- 👇 NEW DASHBOARD ENDPOINTS (Required for Artist Dashboard) ---
     path("api/auth/dashboard/", ArtistDashboardView.as_view(), name="artist-dashboard"),
     path(
@@ -40,20 +39,14 @@ urlpatterns = [
         ManagePortfolioView.as_view(),
         name="delete-portfolio",
     ),
-    
     # --- Feature Apps ---
     path("api/appointments/", include("apps.appointment.urls")),
     path("api/price/", include("apps.price.urls")),
     path("api/library/", include("library.urls")),
-    
-    # 🛒 👇 THIS IS THE NEW SHOP LINE WE JUST ADDED! 👇 🛒
-    path("api/shop/", include("apps.shop.urls")), 
-
+    path("api/shop/", include("apps.shop.urls")),
     path("api/users/gallery/", GlobalGalleryView.as_view(), name="global-gallery"),
-    
     # 🤖 AI Endpoints
     path("api/", include("apps.ai.urls")),
-    
     # --- JWT Token Endpoints ---
     path("api/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

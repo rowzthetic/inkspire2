@@ -48,20 +48,20 @@ from .views import (
     # Marketplace Views
     ArtistListView,
     CustomTokenObtainPairView,
+    GlobalGalleryView,
     # ✅ IMPORT GOOGLE LOGIN VIEW
     GoogleLoginView,
     LoginWithOTPView,
     LogoutView,
     ManagePortfolioView,
+    PasswordResetConfirmView,
+    PasswordResetRequestView,
     # Auth Views
     RegisterView,
+    UpdateArtistProfileView,
     UpdateScheduleView,
     UserView,
     VerifyOTPView,
-    UpdateArtistProfileView,
-    GlobalGalleryView,
-    PasswordResetRequestView,
-    PasswordResetConfirmView,
 )
 
 urlpatterns = [
@@ -91,6 +91,14 @@ urlpatterns = [
     # --- Gallery (Global) ---
     path("gallery/", GlobalGalleryView.as_view(), name="global-gallery"),
     # --- Password Reset ---
-    path("password-reset/", PasswordResetRequestView.as_view(), name="password-reset-request"),
-    path("password-reset/confirm/", PasswordResetConfirmView.as_view(), name="password-reset-confirm"),
+    path(
+        "password-reset/",
+        PasswordResetRequestView.as_view(),
+        name="password-reset-request",
+    ),
+    path(
+        "password-reset/confirm/",
+        PasswordResetConfirmView.as_view(),
+        name="password-reset-confirm",
+    ),
 ]

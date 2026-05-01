@@ -7,7 +7,9 @@ export default function Navbar() {
 
   return (
     <header className="navbar">
-      <div className="logo">INKSPIRE</div>
+      <div className="logo">
+        <Link to="/" style={{fontWeight: 'bold', color: 'white',textDecoration: 'none'}}>INKSPIRE</Link>
+      </div>
       <nav>
         <ul className="nav-links">
            {!user ? (

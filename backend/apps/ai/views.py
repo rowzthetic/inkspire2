@@ -1,12 +1,11 @@
 import base64
 import json
 import os
-import re  # Note: re is no longer used in the simplified view but left for completeness with original code structure.
 
 import requests
 from openai import OpenAI
 from rest_framework import status
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,7 +14,7 @@ from rest_framework.views import APIView
 # No changes needed here, assuming OpenAI is installed.
 class TattooPreviewView(APIView):
     permission_classes = [AllowAny]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_client(self) -> OpenAI:
         # Changed env var to avoid using a VITE_ prefixed key on the backend
@@ -146,10 +145,58 @@ class TattooPreviewView(APIView):
                 return Response({"error": str(e)}, status=500)
 
         elif mode == "generate":
-            return Response(
-                {"error": "Generate mode not yet implemented."},
-                status=status.HTTP_501_NOT_IMPLEMENTED,
-            )
+            prompt = request.data.get("prompt")
+            if not prompt:
+                return Response({"error": "Prompt required for generation."}, status=400)
+
+            try:
+                # INTEGRATED DIRECT TATTOO DESIGN GENERATION
+                messages = [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": (
+                                    f"Please generate a photorealistic, high-contrast tattoo design based on this prompt: '{prompt}'. "
+                                    "The design should be presented as a clean tattoo flash (black/grey or vibrant color as requested) "
+                                    "on a plain white or neutral background, perfectly suitable for a tattoo artist to use as a stencil. "
+                                    "Ensure the lines are sharp and the artistic detail is elite."
+                                ),
+                            },
+                        ],
+                    }
+                ]
+
+                # Make a call to Gemini 2.5 Flash for image generation
+                response = client.chat.completions.create(
+                    model="google/gemini-2.5-flash-image",
+                    messages=messages,
+                    extra_body={
+                        "modalities": ["image", "text"],
+                    },
+                )
+
+                # Extract and return the generated image URL
+                message = response.choices[0].message
+                images = getattr(message, "images", None)
+                if not images and hasattr(message, "__dict__"):
+                    images = message.__dict__.get("images")
+                
+                if images:
+                    image_data_url = images[0]["image_url"]["url"]
+                    return Response(
+                        {
+                            "image_url": image_data_url,
+                            "message": "Tattoo design generation successful.",
+                        },
+                        status=status.HTTP_200_OK,
+                    )
+                else:
+                    raise ValueError("Failed to generate design image.")
+
+            except Exception as e:
+                return Response({"error": str(e)}, status=500)
 
         return Response({"error": f"Unknown mode: '{mode}'"}, status=400)
 
@@ -239,3 +286,57 @@ class TattooConsultantView(APIView):
                 {"error": f"Failed to connect to AI service: {str(e)}"},
                 status=status.HTTP_502_BAD_GATEWAY,
             )
+
+class TattooLibraryAIView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        name = request.data.get("name")
+        if not name:
+            return Response({"error": "Tattoo name is required."}, status=400)
+
+        api_key = os.getenv("VITE_OPENROUTER_API_KEY") or os.getenv("OPENROUTER_API_KEY")
+        if not api_key:
+            return Response({"error": "AI API key not configured."}, status=500)
+
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://openrouter.ai/api/v1",
+        )
+
+        prompt = (
+            f"You are a world-class tattoo historian and symbolism expert. "
+            f"The user wants to know about the '{name}' tattoo. "
+            f"Generate a deep analysis in a strict JSON format. "
+            f"The response MUST ONLY be the JSON object with the following fields:\n"
+            f"- name: the tattoo name\n"
+            f"- culture: the primary cultural origin (e.g. 'Greek Mythology', 'Polynesian', etc.)\n"
+            f"- emoji: a single relevant emoji\n"
+            f"- color: a suitable brand hex color representing the symbol (e.g. #C9A84C for gold)\n"
+            f"- tags: 6 lowercase descriptive tags\n"
+            f"- placements: 4 lowercase body part placements (from: chest, back, upperarm, forearm, thigh, calf, shoulder, ankle, sleeve, wrist)\n"
+            f"- sensitive: boolean (true if the symbol is culturally protected/sacred)\n"
+            f"- history: a 2-sentence historical background\n"
+            f"- meaning: a powerful 2-sentence poetic meaning\n"
+            f"- bestPlacement: a 1-sentence expert placement recommendation.\n"
+            f"Ensure the JSON is valid and contains no extra text."
+        )
+
+        try:
+            response = client.chat.completions.create(
+                model="google/gemini-2.0-flash-001",
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"}
+            )
+            
+            content = response.choices[0].message.content
+            # Clean up potential markdown formatting
+            content = content.replace("```json", "").replace("```", "").strip()
+            
+            data = json.loads(content)
+            # Add a mock ID for frontend
+            data["id"] = int(base64.b64encode(name.encode()).hex()[:6], 16)
+            
+            return Response(data, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)

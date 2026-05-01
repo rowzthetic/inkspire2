@@ -435,12 +435,33 @@
     transform: translateY(-1px);
 }
 
-.btn-decline:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+.btn-update:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
 }
 
-.btn-update {
+.btn-track-healing {
+    background: #1D9E75;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.btn-track-healing:hover {
+    background: #15805d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(29, 158, 117, 0.3);
+}
+
+.btn-status-change {
     background: #3b82f6;
     color: white;
     border: none;
@@ -455,7 +476,7 @@
     transition: all 0.2s ease;
 }
 
-.btn-update:hover {
+.btn-status-change:hover {
     background: #2563eb;
     transform: translateY(-1px);
 }

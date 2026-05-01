@@ -64,7 +64,7 @@
 
 from rest_framework import serializers
 
-from .models import Appointment, ArtistAvailability
+from .models import Appointment, ArtistAvailability, HealingLog, HealingNote, HealingPhoto
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
@@ -130,3 +130,45 @@ class ArtistAvailabilitySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context["request"].user
         return ArtistAvailability.objects.create(artist=user, **validated_data)
+
+
+class HealingPhotoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HealingPhoto
+        fields = ["id", "image"]
+
+
+class HealingLogSerializer(serializers.ModelSerializer):
+    photos = HealingPhotoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = HealingLog
+        fields = [
+            "id",
+            "day",
+            "pain_level",
+            "symptoms",
+            "personal_notes",
+            "artist_feedback",
+            "photos",
+            "created_at",
+        ]
+
+
+class HealingNoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HealingNote
+        fields = ["day", "note"]
+
+
+from .models import HealingMessage
+
+
+class HealingMessageSerializer(serializers.ModelSerializer):
+    sender_name = serializers.CharField(source="sender.username", read_only=True)
+    is_artist = serializers.BooleanField(source="sender.is_artist", read_only=True)
+
+    class Meta:
+        model = HealingMessage
+        fields = ["id", "sender", "sender_name", "is_artist", "message", "created_at"]
+        read_only_fields = ["sender", "created_at"]

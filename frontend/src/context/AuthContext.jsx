@@ -3,16 +3,27 @@ import { createContext, useState, useEffect, useContext, useCallback } from 'rea
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    // 1. Lazy Initialization: Grab data immediately on start
+    const [user, setUser] = useState(() => {
+        const storedUser = localStorage.getItem('user');
+        try {
+            return storedUser ? JSON.parse(storedUser) : null;
+        } catch (error) {
+            console.error("Failed to parse user from localStorage", error);
+            return null;
+        }
+    });
+
     const [loading, setLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    // 1. Check if user is already logged in when app loads, and VERIFY token
+    // 2. Verification on Mount
     useEffect(() => {
         const checkAuth = async () => {
-            const storedUser = localStorage.getItem('user');
             const token = localStorage.getItem('access');
-            
+            const storedUser = localStorage.getItem('user');
+
+            // If we have both, verify the token with the backend
             if (storedUser && token) {
                 try {
                     const response = await fetch('http://localhost:8000/api/token/verify/', {
@@ -21,47 +32,37 @@ export const AuthProvider = ({ children }) => {
                         body: JSON.stringify({ token })
                     });
 
-                    if (response.ok) {
-                        setUser(JSON.parse(storedUser));
-                    } else {
+                    if (!response.ok) {
                         throw new Error('Token verification failed');
                     }
+                    // Token is valid, state is already set by lazy init
                 } catch (error) {
-                    console.warn('Session invalid on load. Clearing session.', error);
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('access');
-                    localStorage.removeItem('refresh');
-                    setUser(null);
-                    
-                    // Redirect to login if they are on a protected route
-                    const path = window.location.pathname;
-                    const isPublicRoute = ['/', '/login', '/signup', '/gallery', '/artists', '/explore', '/shop', '/about', '/forgot-password'].includes(path) || path.startsWith('/artists/');
-                    
-                    if (!isPublicRoute) {
-                        window.location.href = '/login';
-                    }
+                    console.warn('Session invalid. Clearing session.', error);
+                    handleClearSession();
                 }
             } else if (storedUser || token) {
-                // Handle inconsistent state where one is present but not the other
-                console.warn('Inconsistent auth state. Clearing session.');
-                localStorage.removeItem('user');
-                localStorage.removeItem('access');
-                localStorage.removeItem('refresh');
-                setUser(null);
+                // Cleanup inconsistent state
+                handleClearSession();
             }
+
             setLoading(false);
         };
-        
+
         checkAuth();
     }, []);
 
-    // 2. Token Refresh Function
+    // Helper to clear storage and state consistently
+    const handleClearSession = () => {
+        localStorage.removeItem('user');
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        setUser(null);
+    };
+
+    // 3. Token Refresh Function
     const refreshToken = useCallback(async () => {
         const refresh = localStorage.getItem('refresh');
-        
-        if (!refresh) {
-            return null;
-        }
+        if (!refresh) return null;
 
         try {
             setIsRefreshing(true);
@@ -71,10 +72,7 @@ export const AuthProvider = ({ children }) => {
                 body: JSON.stringify({ refresh })
             });
 
-            if (!response.ok) {
-                // Refresh token is invalid or expired
-                throw new Error('Refresh failed');
-            }
+            if (!response.ok) throw new Error('Refresh failed');
 
             const data = await response.json();
             localStorage.setItem('access', data.access);
@@ -87,92 +85,78 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    // 3. Authenticated Fetch Wrapper with Automatic Token Refresh
+    // 4. Authenticated Fetch Wrapper
     const authFetch = useCallback(async (url, options = {}) => {
         let accessToken = localStorage.getItem('access');
-
-        // Prepare headers with auth token
+        
+        const isFormData = options.body instanceof FormData;
+        
         const headers = {
-            'Content-Type': 'application/json',
             ...options.headers
-        };
+        };  
+
+        if (!isFormData && !headers['Content-Type']) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        // If explicitly undefined, delete so browser can handle it (e.g. for FormData)
+        if (headers['Content-Type'] === undefined) {
+            delete headers['Content-Type'];
+        }
 
         if (accessToken) {
             headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
-        // First attempt
-        let response = await fetch(url, {
-            ...options,
-            headers
-        });
+        let response = await fetch(url, { ...options, headers });
 
-        // If we get a 401, try to refresh the token
+        // If 401, try to refresh
         if (response.status === 401) {
             const newToken = await refreshToken();
-
             if (newToken) {
-                // Retry the original request with new token
                 headers['Authorization'] = `Bearer ${newToken}`;
-                response = await fetch(url, {
-                    ...options,
-                    headers
-                });
+                response = await fetch(url, { ...options, headers });
             } else {
-                // Refresh failed, logout the user
                 logOut();
                 throw new Error('Session expired. Please login again.');
             }
         }
-
         return response;
     }, [refreshToken]);
 
-    // 4. Global Login Function (PURE DATA ONLY)
-    const loginAction = async (data) => {
-        // Save to local storage
-        localStorage.setItem('user', JSON.stringify({
+    // 5. Global Login Function
+    const loginAction = (data) => {
+        const userData = {
             username: data.username,
             is_artist: data.is_artist,
             profile_image: data.profile_picture
-        }));
-        
-        localStorage.setItem('access', data.access); 
+        };
+
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('access', data.access);
         localStorage.setItem('refresh', data.refresh);
-        
-        // Update State
-        setUser({
-            username: data.username,
-            is_artist: data.is_artist,
-            profile_image: data.profile_picture
-        });
+
+        setUser(userData);
     };
 
-    // 5. Global Logout Function
+    // 6. Global Logout Function
     const logOut = useCallback(() => {
-        setUser(null);
-        localStorage.removeItem('user');
-        localStorage.removeItem('access');
-        localStorage.removeItem('refresh');
-        
-        // Hard redirect is safer for logout to clear memory
-        window.location.href = '/login'; 
+        handleClearSession();
+        window.location.href = '/login';
     }, []);
 
     return (
-        <AuthContext.Provider value={{ 
-            user, 
-            loginAction, 
-            logOut, 
-            loading, 
+        <AuthContext.Provider value={{
+            user,
+            loginAction,
+            logOut,
+            loading,
             authFetch,
-            isRefreshing 
+            isRefreshing
         }}>
             {!loading && children}
         </AuthContext.Provider>
     );
 };
 
-export const useAuth = () => {
-    return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);

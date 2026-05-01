@@ -49,49 +49,108 @@ body {
 }
 
 /* Hero Section */
+
 .hero {
-  background: url('https://images.unsplash.com/photo-1504066294960-d53dfd1d5f3b?auto=format&fit=crop&w=1350&q=80') center/cover no-repeat;
+  position: relative;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-}
-
-.hero-content {
-  background: rgba(0, 0, 0, 0.6);
-  padding: 2rem;
-  border-radius: 12px;
-}
-
-.hero h1 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  background: #0a0a0a; /* Fallback */
+  background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('your-image-path.jpg');
+  background-size: cover;
+  background-position: center;
   color: #fff;
+  overflow: hidden;
 }
 
-.hero p {
+/* Typography */
+.hero-subtitle {
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  font-size: 0.9rem;
+  color: #c4a47c; /* Gold/Bronze accent */
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.hero-content h1 {
+  font-size: clamp(3rem, 8vw, 5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+.accent-text {
+  color: #c4a47c; 
+  font-style: italic;
+}
+
+.hero-content p {
   font-size: 1.2rem;
-  margin-bottom: 2rem;
-  color: #ddd;
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+/* Buttons */
+.hero-cta-group {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
 }
 
 .btn {
-  background-color: #e63946;
-  color: #fff;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
+  padding: 15px 35px;
+  border-radius: 4px;
   font-weight: 600;
   text-decoration: none;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
 }
 
-.btn:hover {
-  background-color: #c71c2c;
+.btn-primary {
+  background: #c4a47c;
+  color: #1a1a1a;
 }
 
+.btn-primary:hover {
+  background: #fff;
+  transform: translateY(-3px);
+}
+
+.btn-secondary {
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: #fff;
+}
+
+/* Scroll Animation */
+.scroll-indicator {
+  position: absolute;
+  bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.6;
+}
+
+.mouse {
+  width: 20px;
+  height: 35px;
+  border: 2px solid #fff;
+  border-radius: 20px;
+}
 /* About Section */
 .about {
   padding: 4rem 2rem;
@@ -484,3 +543,4 @@ footer {
       opacity: 1;
       transform: translateY(0);
     }
+

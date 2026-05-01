@@ -218,7 +218,7 @@ const Shop = () => {
                 ))}
             </div>
 
-            {/* 👇 THE NEW, BEAUTIFUL SLIDE-OUT CART PANEL 👇 */}
+            {/* THE NEW, BEAUTIFUL SLIDE-OUT CART PANEL  */}
             {isCartOpen && (
                 <div style={styles.cartPanel}>
                     <div style={styles.cartHeader}>
@@ -302,7 +302,7 @@ const styles = {
     addButton: { padding: '12px', backgroundColor: 'transparent', color: '#D4AF37', border: '1px solid #D4AF37', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem', transition: 'all 0.3s ease' },
     disabledButton: { padding: '12px', backgroundColor: '#111', color: '#555', border: '1px solid #333', borderRadius: '4px', cursor: 'not-allowed', fontWeight: 'bold', fontSize: '1rem' },
     
-    // 👇 UPGRADED CART PANEL STYLES 👇
+    //  UPGRADED CART PANEL STYLES 
     cartPanel: { color: '#f0ebe0', position: 'fixed', top: '0', right: '0', width: '380px', height: '100%', backgroundColor: '#0a0a0b', borderLeft: '1px solid #222', boxShadow: '-5px 0 25px rgba(0,0,0,0.8)', padding: '25px', zIndex: 1000, display: 'flex', flexDirection: 'column' },
     cartHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #222', paddingBottom: '15px', marginBottom: '20px' },
     closeBtn: { background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#D4AF37', transition: 'color 0.2s' },

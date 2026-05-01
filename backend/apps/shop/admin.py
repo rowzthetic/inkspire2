@@ -23,3 +23,32 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ('status', 'created_at')
     search_fields = ('user__username', 'shipping_address')
     inlines = [OrderItemInline] # Adds the items directly into the order view
+
+
+
+
+
+# from django.contrib import admin
+# from .models import Product, Order, OrderItem, Category
+
+# @admin.register(Category)
+# class CategoryAdmin(admin.ModelAdmin):
+#     list_display = ('name', 'slug')
+#     prepopulated_fields = {'slug': ('name',)} # Automatically types slug as you type name
+
+# @admin.register(Product)
+# class ProductAdmin(admin.ModelAdmin):
+#     list_display = ('name', 'price', 'category', 'stock_quantity', 'is_active')
+#     list_filter = ('category', 'is_active') # Now you can filter by your dynamic categories
+#     search_fields = ('name', 'description')
+
+# class OrderItemInline(admin.TabularInline):
+#     model = OrderItem
+#     extra = 0
+#     readonly_fields = ('product', 'quantity', 'price_at_purchase')
+
+# @admin.register(Order)
+# class OrderAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'user', 'total_price', 'status', 'created_at')
+#     list_filter = ('status', 'created_at')
+#     inlines = [OrderItemInline]

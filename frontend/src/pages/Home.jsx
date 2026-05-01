@@ -3,18 +3,31 @@ import '../App.css';
 
 export default function Home() {
   return (
-    <>
+    <div className="home-container">
       <section id="home" className="hero">
+        <div className="hero-overlay"></div>
         <div className="hero-content">
-            <h1>Ink that Inspires</h1>
-            <p>Custom designs. Timeless artistry. Crafted with passion.</p>
-            <Link to="/artists" className="btn">View Artists & Book Appointment</Link>
-            {/* Added a button to go to Explore from Home */}
-            <div style={{marginTop: '20px'}}>
-              <Link to="/explore" style={{color: '#fff', textDecoration: 'underline'}}>or Explore Features</Link>
-            </div>
+          <span className="hero-subtitle">Premium Tattoo Studio</span>
+          <h1>Ink that <span className="accent-text">Inspires</span></h1>
+          <p>
+            Where custom designs meet timeless artistry. 
+            Your vision, crafted with passion and precision.
+          </p>
+          
+          <div className="hero-cta-group">
+            <Link to="/artists" className="btn btn-primary">
+              Book Appointment
+            </Link>
+            <Link to="/explore" className="btn btn-secondary">
+              Explore Features
+            </Link>
+          </div>
+        </div>
+        
+        <div className="scroll-indicator">
+          
         </div>
       </section>
-    </>
+    </div>
   );
 }

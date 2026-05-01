@@ -4,6 +4,7 @@ from .models import Order, OrderItem, Product
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    category = serializers.ReadOnlyField(source='category.name')
     class Meta:
         model = Product
         fields = [

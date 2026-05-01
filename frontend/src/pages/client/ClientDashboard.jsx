@@ -452,7 +452,7 @@ import { useAuth } from '../../context/AuthContext';
 import { 
     Calendar, Clock, User, MapPin, DollarSign, CheckCircle, XCircle, 
     Clock3, Image as ImageIcon, AlertCircle, ChevronRight, Briefcase,
-    Filter, Eye, FileText, CreditCard
+    Filter, Eye, FileText, CreditCard, Activity
 } from 'lucide-react';
 import './ClientDashboard.css';
 
@@ -853,9 +853,27 @@ const ClientDashboard = () => {
                                 </div>
 
                                 {/* Card Actions */}
-                                {(appointment.status === 'pending' || appointment.status === 'confirmed') && (
-                                    <div className="client-card-actions" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                {(appointment.status === 'pending' || appointment.status === 'confirmed' || appointment.status === 'completed') && (
+                                    <div className="client-card-actions" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '16px' }}>
                                         
+                                        {/* Track Healing Button */}
+                                        {(appointment.status === 'confirmed' || appointment.status === 'completed') && (
+                                            <button 
+                                                className="client-track-btn"
+                                                onClick={() => navigate(`/explore/healing?appt=${appointment.id}`)}
+                                                style={{
+                                                    display: 'flex', alignItems: 'center', gap: '8px',
+                                                    backgroundColor: '#1D9E75', color: 'white',
+                                                    padding: '8px 16px', borderRadius: '6px',
+                                                    border: 'none', cursor: 'pointer',
+                                                    fontWeight: 'bold', fontSize: '0.9rem'
+                                                }}
+                                            >
+                                                <Activity size={18} /> Track Healing Progress
+                                            </button>
+                                        )}
+
+                                        {/* Stripe Payment Button */}
                                         {appointment.status === 'confirmed' && !appointment.is_deposit_paid && appointment.deposit_amount && (
                                             <button 
                                                 className="client-pay-btn"

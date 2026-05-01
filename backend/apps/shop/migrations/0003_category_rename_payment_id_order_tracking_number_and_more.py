@@ -5,6 +5,30 @@ from django.conf import settings
 from django.db import migrations, models
 
 
+def convert_categories(apps, schema_editor):
+    Category = apps.get_model('shop', 'Category')
+    Product = apps.get_model('shop', 'Product')
+    
+    # Create required categories
+    merch, _ = Category.objects.get_or_create(name='Merchandise')
+    aftercare, _ = Category.objects.get_or_create(name='Aftercare')
+    supplies, _ = Category.objects.get_or_create(name='Supplies')
+
+    # Mapping based on Product.CATEGORY_CHOICES (merch, aftercare, supplies)
+    mapping = {
+        'merch': merch,
+        'aftercare': aftercare,
+        'supplies': supplies,
+    }
+
+    # Since SQLite already has the strings in the category column/id, we need a way to map them.
+    # We'll use a direct SQL update to clear the column if it's invalid OR map them.
+    # But wait, if we are in RunPython, we can handle it with ORM if the field hasn't changed *type* in the DB yet?
+    # Actually, in SQLite, renaming/altering causes a temporary table usually.
+    
+    for old_val, obj in mapping.items():
+        Product.objects.filter(category=old_val).update(category=obj.id)
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -23,6 +47,7 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Categories',
             },
         ),
+        migrations.RunPython(convert_categories),
         migrations.RenameField(
             model_name='order',
             old_name='payment_id',

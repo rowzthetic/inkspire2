@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useAuth } from "../context/AuthContext";
 import { Search, X, BookOpen, MapPin, Sparkles, ChevronRight, AlertTriangle, Send, RotateCcw, Loader2 } from "lucide-react";
 
 // ─── Dataset ────────────────────────────────────────────────────────────────
@@ -136,9 +137,20 @@ const SYMBOLS = [
     bestPlacement: "Ankle or wrist — intimate placements that honour the moon's quiet, personal influence.",
     aiKeywords: ["cycles", "change", "mystery", "intuition", "femininity", "time"],
   },
+  {
+    id: 13, name: "Medusa", culture: "Greek Mythology", emoji: "🐍",
+    color: "#2E4A3E",
+    tags: ["protection", "femme fatale", "transformation", "strength", "wisdom", "mystery"],
+    placements: ["back", "forearm", "thigh", "chest"],
+    sensitive: false,
+    history: "In Greek myth, Medusa was a Gorgon whose gaze turned onlookers to stone. Originally a priestess, her story has evolved into a powerful symbol of feminine power and warding off evil.",
+    meaning: "The ultimate emblem of internal strength and protection. To wear Medusa is to declare: 'My gaze is my own, and I am my own protector.'",
+    bestPlacement: "The back or outer thigh — large surfaces allow her serpentine hair to flow with the body's natural curves.",
+    aiKeywords: ["protection", "strength", "power", "feminine", "mythology"],
+  },
 ];
 
-const CULTURES = ["All", "Japanese (Irezumi)", "American Traditional", "Nordic/Viking", "Sacred Geometry"];
+const CULTURES = ["All", "Japanese (Irezumi)", "American Traditional", "Nordic/Viking", "Sacred Geometry", "Greek Mythology"];
 
 const BODY_PARTS = [
   { id: "chest", label: "Chest", x: 95, y: 110, w: 60, h: 40 },
@@ -400,7 +412,6 @@ const BodyMap = ({ activeBodyPart, onSelect }) => {
             Filtering: {BODY_PARTS.find(p => p.id === activeBodyPart)?.label}
           </span>
           <button onClick={() => onSelect(null)} 
-            // ✅ CORRECT (Clean and singular)
 style={{
   display: "flex", 
   alignItems: "center", 
@@ -427,6 +438,7 @@ const AIConsultant = () => {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const { authFetch } = useAuth();
 
   const handleSearch = async () => {
     if (!input.trim()) return;
@@ -436,17 +448,17 @@ const AIConsultant = () => {
     setResult(null);
 
     try {
-        const response = await fetch('http://localhost:8000/api/consult/', {
+        const response = await authFetch('http://localhost:8000/api/library-search/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ messages: [{ role: "user", content: input.trim() }] })
+            body: JSON.stringify({ name: input.trim() })
         });
         
         if (!response.ok) throw new Error("Failed to get response");
         const data = await response.json();
-        setResult(data.response);
+        setResult(data);
     } catch (err) {
-        setResult("Connection error. Ensure the Inkspire AI proxy is running.");
+        setResult({ error: "Connection error. Ensure the Inkspire AI service is running." });
     } finally {
         setLoading(false);
     }
@@ -457,26 +469,6 @@ const AIConsultant = () => {
       setResult(null);
       setHasSearched(false);
   }
-
-  const renderText = (text) => {
-    return text.split('\n').map((line, idx) => {
-        const isBullet = line.trim().startsWith('-');
-        const lineContent = isBullet ? line.trim().substring(1).trim() : line;
-        if (!lineContent) return <br key={idx} />;
-
-        const parts = lineContent.split(/\*\*(.*?)\*\*/g);
-        
-        return (
-            <span key={idx} style={{ display: isBullet ? 'list-item' : 'block', marginLeft: isBullet ? '20px' : '0', marginBottom: '8px' }}>
-                {parts.map((part, i) =>
-                    i % 2 === 1
-                        ? <strong key={i} style={{ color: "#C9A84C", fontWeight: 700 }}>{part}</strong>
-                        : part
-                )}
-            </span>
-        );
-    });
-  };
 
   return (
     <div style={{
@@ -509,7 +501,7 @@ const AIConsultant = () => {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && handleSearch()}
-                placeholder="Search mysteries (e.g. 'Wolf carrying a dagger')"
+                placeholder="Search mysteries (e.g. 'Medusa tattoo')"
                 readOnly={loading}
                 style={{ 
                    width: "100%", background: "#0a0a0b", 
@@ -540,12 +532,42 @@ const AIConsultant = () => {
                        <Loader2 size={36} color="#C9A84C" style={{ animation: "spin 2s linear infinite", marginBottom: "16px" }} />
                        <p style={{ margin: 0, color: "#C9A84C", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700 }}>Consulting the Archives...</p>
                   </div>
-              ) : (
+              ) : result?.error ? (
+                  <p style={{ color: "#E24B4A", textAlign: "center" }}>{result.error}</p>
+              ) : result && (
                   <div>
-                      <h4 style={{ color: "#C9A84C", fontSize: 18, marginTop: 0, marginBottom: "20px", fontFamily: "'Georgia', serif", borderBottom: "1px solid #C9A84C33", paddingBottom: "12px" }}>Knowledge Card</h4>
-                      <div style={{ color: "#c8bfb0", fontSize: 15, lineHeight: 1.7, fontFamily: "system-ui" }}>
-                          {result ? renderText(result) : "No meaning found."}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #C9A84C33", paddingBottom: "12px", marginBottom: "20px" }}>
+                          <h4 style={{ color: "#C9A84C", fontSize: 20, margin: 0, fontFamily: "'Georgia', serif" }}>{result.emoji} {result.name}</h4>
+                          <span style={{ fontSize: 10, color: "#888", textTransform: "uppercase" }}>{result.culture}</span>
                       </div>
+                      
+                      <div style={{ display: "flex", flexDirection: "column", gap: "16px", fontSize: "14px", color: "#c8bfb0", lineHeight: 1.6 }}>
+                          <div>
+                              <strong style={{ color: "#C9A84C", display: "block", fontSize: "11px", textTransform: "uppercase", marginBottom: "4px" }}>History</strong>
+                              {result.history}
+                          </div>
+                          <div>
+                              <strong style={{ color: "#C9A84C", display: "block", fontSize: "11px", textTransform: "uppercase", marginBottom: "4px" }}>Meaning</strong>
+                              {result.meaning}
+                          </div>
+                          <div>
+                              <strong style={{ color: "#C9A84C", display: "block", fontSize: "11px", textTransform: "uppercase", marginBottom: "4px" }}>Expert Placement</strong>
+                              {result.bestPlacement}
+                          </div>
+                          
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>
+                              {result.tags?.map(t => (
+                                  <span key={t} style={{ background: "#2a2a2c", padding: "2px 8px", borderRadius: "4px", fontSize: "10px", color: "#888" }}>#{t}</span>
+                              ))}
+                          </div>
+                      </div>
+
+                      <button 
+                        onClick={() => window.location.href = `/appointment?style=${encodeURIComponent(result.name)}`}
+                        style={{ width: "100%", marginTop: "24px", background: "#C9A84C", border: "none", borderRadius: "8px", padding: "12px", fontWeight: 700, cursor: "pointer", color: "#000" }}
+                      >
+                        Book Artist for this Design
+                      </button>
                   </div>
               )}
           </div>

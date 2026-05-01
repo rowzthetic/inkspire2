@@ -35,13 +35,6 @@ export default function Explore() {
               <Link to="/ai-suite" className="btn">Try It</Link>
           </div>
 
-          {/* Feature 4 */}
-          <div className="explore-card">
-              <img src="images/healinggg.webp" alt="Healing Progress" />
-              <h3>Tattoo Healing Progress</h3>
-              <p>Track your tattoo’s healing journey day by day.</p>
-              <Link to="/explore/healing" className="btn">Track</Link>
-          </div>
 
           {/* Feature 5 */}
           <div className="explore-card">

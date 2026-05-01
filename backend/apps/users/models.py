@@ -66,3 +66,54 @@ class WorkSchedule(models.Model):
 
     def __str__(self):
         return f"{self.artist.username} - {self.get_day_of_week_display()}"
+
+
+class TattooHealingTracker(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="healing_trackers"
+    )
+    tattoo_name = models.CharField(max_length=200)
+    tattoo_image = models.ImageField(
+        upload_to="healing_tattoos/", blank=True, null=True
+    )
+    placement = models.CharField(max_length=100, blank=True, null=True)
+    start_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.tattoo_name} - {self.user.username}"
+
+    @property
+    def days_since_start(self):
+        from datetime import date
+
+        return (date.today() - self.start_date).days
+
+    @property
+    def current_stage(self):
+        days = self.days_since_start
+        if days < 0:
+            return "Not Started"
+        elif days <= 3:
+            return "Day 1-3: Redness & Swelling"
+        elif days <= 7:
+            return "Day 4-7: Itching & Peeling"
+        elif days <= 14:
+            return "Day 8-14: Peeling & Oozing"
+        elif days <= 21:
+            return "Day 15-21: Dry & Sensitive"
+        else:
+            return "Day 22+: Fully Healed"
+
+    @property
+    def is_healed(self):
+        return self.days_since_start >= 21
+
+    @property
+    def days_remaining(self):
+        if self.is_healed:
+            return 0
+        return max(0, 21 - self.days_since_start)
+
+    class Meta:
+        ordering = ["-start_date"]
