@@ -1037,3 +1037,325 @@
     opacity: 1;
   }
 }
+
+/* ============================================
+   MONTH CALENDAR STYLES
+   ============================================ */
+
+.calendar-layout {
+  display: flex;
+  gap: 24px;
+  margin-top: 20px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.calendar-main {
+  flex: 1.4;
+  min-width: 320px;
+}
+
+.calendar-sidebar {
+  flex: 1;
+  min-width: 280px;
+}
+
+.calendar-card {
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.calendar-month-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.01em;
+}
+
+.calendar-nav-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.calendar-nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.calendar-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.calendar-weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.calendar-weekday-label {
+  color: #71717a;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 0;
+}
+
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.calendar-day-wrapper {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day-cell {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: default;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #71717a;
+}
+
+/* Past Dates */
+.calendar-day-cell.is-past {
+  color: #3f3f46;
+  text-decoration: line-through;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Other Month Days */
+.calendar-day-cell.other-month {
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+/* Closed Days */
+.calendar-day-cell.is-inactive {
+  color: #3f3f46;
+  opacity: 0.6;
+}
+
+/* Active Bookable Days */
+.calendar-day-cell.is-bookable {
+  background: rgba(16, 185, 129, 0.04);
+  border-color: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.calendar-day-cell.is-bookable:hover {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: #10b981;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+/* Today Highlighter */
+.calendar-day-cell.is-today {
+  border-color: #dc2626;
+  color: #f87171;
+  font-weight: 700;
+}
+
+.calendar-day-cell.is-today.is-bookable {
+  color: #10b981;
+  border-color: #dc2626;
+}
+
+.day-number {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+/* Cell Dot Indicators */
+.day-indicator {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+.day-indicator.available {
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.day-indicator.closed {
+  background: #ef4444;
+  opacity: 0.35;
+}
+
+/* ============================================
+   SIDEBAR WEEKLY WORK HOURS SUMMARY
+   ============================================ */
+
+.hours-summary-card {
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  height: 100%;
+}
+
+.hours-summary-card h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.01em;
+}
+
+.summary-desc {
+  font-size: 0.85rem;
+  color: #71717a;
+  margin: 0 0 20px 0;
+}
+
+.weekly-schedule-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.weekly-schedule-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #27272a;
+  transition: all 0.2s ease;
+}
+
+.weekly-schedule-row.active {
+  background: rgba(16, 185, 129, 0.02);
+  border-left: 3px solid #10b981;
+}
+
+.weekly-schedule-row.inactive {
+  background: rgba(39, 39, 42, 0.1);
+  border-left: 3px solid #71717a;
+  opacity: 0.6;
+}
+
+.row-day {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+}
+
+.row-hours {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+}
+
+.hours-text {
+  font-size: 0.85rem;
+  color: #d4d4d8;
+  font-weight: 500;
+}
+
+.break-text {
+  font-size: 0.72rem;
+  color: #71717a;
+}
+
+.closed-text {
+  font-size: 0.85rem;
+  color: #71717a;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .calendar-layout {
+    flex-direction: column;
+  }
+  
+  .calendar-main,
+  .calendar-sidebar {
+    width: 100%;
+  }
+}
+
+/* Sizing class for Step 1 of booking modal (Month Calendar) */
+.modal-content.large {
+  max-width: 800px;
+}
+
+/* Call-to-action block at the bottom of the artist profile */
+.booking-cta-section {
+  text-align: center;
+  padding: 40px 24px;
+  background: linear-gradient(145deg, #18181b 0%, #0d0d0f 100%);
+  border: 1px solid #27272a;
+  border-radius: 16px;
+  margin-top: 40px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.booking-cta-section h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.booking-cta-section p {
+  color: #a1a1aa;
+  font-size: 0.95rem;
+  margin: 0 0 24px 0;
+  line-height: 1.5;
+}
+
+.booking-cta-section .cta-btn {
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+.calendar-modal-wrapper {
+  margin-top: 10px;
+}
+

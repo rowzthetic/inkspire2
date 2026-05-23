@@ -38,7 +38,7 @@ PLACEMENT_META = {
     "forearm": {"pain": 3, "multiplier": 1.0},
     "thigh": {"pain": 4, "multiplier": 1.0},
     "calf": {"pain": 4, "multiplier": 1.0},
-    "upper_back": {"pain": 5, "multiplier": 1.1},
+    "back": {"pain": 5, "multiplier": 1.1},
     "chest": {"pain": 6, "multiplier": 1.2},
     "hands": {"pain": 7, "multiplier": 1.3},  # Hard to tattoo skin
     "neck": {"pain": 8, "multiplier": 1.4},  # Risky spot

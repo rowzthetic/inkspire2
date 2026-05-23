@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MapPin, Instagram, Calendar, Clock, User, X, Info, ChevronLeft, Check, Upload, Loader2 } from 'lucide-react';
+import { MapPin, Instagram, Calendar, Clock, User, X, Info, ChevronLeft, ChevronRight, Check, Upload, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './ArtistProfile.css';
 
@@ -46,6 +46,114 @@ const ArtistProfile = () => {
   const [modalStep, setModalStep] = useState('slots'); // 'slots', 'form', 'success', 'error'
   const [selectedTime, setSelectedTime] = useState(null);
 
+  // Calendar State
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // Date Formatting / Processing Helpers
+  const getLocalDateString = (date) => {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const getCalendarDays = (monthDate) => {
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    
+    // First day of the month
+    const firstDay = new Date(year, month, 1);
+    
+    // Get day index (0 = Sunday, 1 = Monday, etc.)
+    let startDay = firstDay.getDay();
+    // Shift so Monday is 0, Tuesday is 1, ..., Sunday is 6
+    startDay = startDay === 0 ? 6 : startDay - 1;
+    
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    
+    const cells = [];
+    
+    // Previous month padding days
+    for (let i = startDay - 1; i >= 0; i--) {
+      cells.push({
+        date: new Date(year, month - 1, daysInPrevMonth - i),
+        isCurrentMonth: false,
+      });
+    }
+    
+    // Current month days
+    for (let i = 1; i <= daysInMonth; i++) {
+      cells.push({
+        date: new Date(year, month, i),
+        isCurrentMonth: true,
+      });
+    }
+    
+    // Next month padding days to fill 42 cells (6 rows * 7 days)
+    const remaining = 42 - cells.length;
+    for (let i = 1; i <= remaining; i++) {
+      cells.push({
+        date: new Date(year, month + 1, i),
+        isCurrentMonth: false,
+      });
+    }
+    
+    return cells;
+  };
+
+  const prevMonth = () => {
+    const today = new Date();
+    if (
+      currentMonth.getFullYear() === today.getFullYear() &&
+      currentMonth.getMonth() === today.getMonth()
+    ) {
+      return;
+    }
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
+  };
+
+  const nextMonth = () => {
+    const today = new Date();
+    const maxDate = new Date(today.getFullYear(), today.getMonth() + 6, 1);
+    if (
+      currentMonth.getFullYear() === maxDate.getFullYear() &&
+      currentMonth.getMonth() === maxDate.getMonth()
+    ) {
+      return;
+    }
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
+  };
+
+  const getMonthYearString = (date) => {
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+
+  const handleDateClick = async (dateObj, scheduleDay) => {
+    const dateStr = getLocalDateString(dateObj);
+    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+    
+    setSelectedDay(dayName);
+    setBookingDate(dateStr);
+    setShowModal(true);
+    setModalStep('slots');
+    setLoadingSlots(true);
+    setSelectedTime(null);
+    setSubmitError(null);
+    
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/appointments/slots/${id}/?date=${dateStr}`);
+      const data = await res.json();
+      setSlots(data.slots || []);
+    } catch (error) {
+      console.error("Error fetching slots:", error);
+    } finally {
+      setLoadingSlots(false);
+    }
+  };
+
+  const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
   // Form state
   const [formData, setFormData] = useState({
     session_type: 'tattoo',
@@ -76,33 +184,12 @@ const ArtistProfile = () => {
     fetchArtistDetails();
   }, [id]);
 
-  // Handle clicking a day card
-  const handleDayClick = async (dayName, dayIndex) => {
-    setSelectedDay(dayName);
-    setShowModal(true);
-    setModalStep('slots');
-    setLoadingSlots(true);
-    setSelectedTime(null);
-    setSubmitError(null);
-
-    const targetDate = getNextDayDate(dayIndex);
-    setBookingDate(targetDate);
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/appointments/slots/${id}/?date=${targetDate}`);
-      const data = await res.json();
-      setSlots(data.slots || []);
-    } catch (error) {
-      console.error("Error fetching slots:", error);
-    } finally {
-      setLoadingSlots(false);
-    }
-  };
+  // handleDayClick removed in favor of monthly calendar date selection
 
   const closeModal = () => {
     setShowModal(false);
     setSlots([]);
-    setModalStep('slots');
+    setModalStep('calendar');
     setSelectedTime(null);
     setFormErrors({});
     setSubmitError(null);
@@ -132,6 +219,12 @@ const ArtistProfile = () => {
     setSelectedTime(null);
     setFormErrors({});
     setSubmitError(null);
+  };
+
+  const handleBackToCalendar = () => {
+    setModalStep('calendar');
+    setSelectedTime(null);
+    setSlots([]);
   };
 
   const handleInputChange = (e) => {
@@ -264,43 +357,22 @@ const ArtistProfile = () => {
                   <Instagram size={20} /> Follow on Instagram
                 </a>
               )}
+              <button 
+                type="button" 
+                className="book-now-hero-btn"
+                onClick={() => {
+                  setShowModal(true);
+                  setModalStep('calendar');
+                }}
+              >
+                Book a Session
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <div className="profile-body">
-        {/* SCHEDULE SECTION */}
-        <div className="section-block">
-          <h2><Clock size={24} /> Availability</h2>
-
-          <div className="booking-instruction">
-            <Info size={18} color="#dc2626" />
-            <span>Select a <strong>Day</strong> below to see available slots and <strong>Book</strong> your session.</span>
-          </div>
-
-          <div className="schedule-grid">
-            {artist.schedule && artist.schedule.map((day) => (
-              <div
-                key={day.id}
-                className={`schedule-card ${day.is_active ? 'open clickable' : 'closed'}`}
-                onClick={() => day.is_active && handleDayClick(day.day_name, day.day_of_week)}
-                style={{ cursor: day.is_active ? 'pointer' : 'default' }}
-              >
-                <div className="day-name">{day.day_name}</div>
-                <div className="hours">
-                  {day.is_active ? (
-                    <>
-                      <span>{formatTime(day.start_time)} - {formatTime(day.end_time)}</span>
-                      {day.break_start && <small style={{ display: 'block', fontSize: '0.7rem', color: '#666' }}>Lunch: {formatTime(day.break_start)}</small>}
-                    </>
-                  ) : <span className="closed-badge">Closed</span>}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* PORTFOLIO SECTION */}
         <div className="section-block">
           <h2><Calendar size={24} /> Portfolio</h2>
@@ -316,29 +388,54 @@ const ArtistProfile = () => {
             )}
           </div>
         </div>
+
+        {/* BOOKING CALL-TO-ACTION SECTION */}
+        <div className="booking-cta-section">
+          <h3>Ready to get inked?</h3>
+          <p>Book a personalized session with {artist.username} using our custom interactive calendar.</p>
+          <button 
+            type="button" 
+            className="btn-primary cta-btn"
+            onClick={() => {
+              setShowModal(true);
+              setModalStep('calendar');
+            }}
+          >
+            Book a Session
+          </button>
+        </div>
       </div>
 
       {/* POP-UP MODAL - Multi-step */}
       {showModal && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className={`modal-content ${modalStep === 'calendar' ? 'large' : ''}`} onClick={(e) => e.stopPropagation()}>
             {/* Modal Header */}
             <div className="modal-header">
               <div className="modal-header-content">
-                {modalStep === 'form' && (
-                  <button className="back-btn" onClick={handleBackToSlots} aria-label="Go back">
+                {modalStep === 'slots' && (
+                  <button type="button" className="back-btn" onClick={handleBackToCalendar} aria-label="Go back">
                     <ChevronLeft size={22} />
                   </button>
                 )}
-                <span className="modal-day-badge">{selectedDay}</span>
+                {modalStep === 'form' && (
+                  <button type="button" className="back-btn" onClick={handleBackToSlots} aria-label="Go back">
+                    <ChevronLeft size={22} />
+                  </button>
+                )}
+                {modalStep !== 'calendar' && modalStep !== 'success' && modalStep !== 'error' && (
+                  <span className="modal-day-badge">{selectedDay}</span>
+                )}
                 <div className="modal-date-info">
                   <h3>
+                    {modalStep === 'calendar' && 'Select Date'}
                     {modalStep === 'slots' && 'Select Time'}
                     {modalStep === 'form' && 'Booking Details'}
                     {modalStep === 'success' && 'Booking Confirmed!'}
                     {modalStep === 'error' && 'Booking Failed'}
                   </h3>
                   <span className="modal-subtitle">
+                    {modalStep === 'calendar' && 'Choose a date to see available time slots'}
                     {modalStep === 'slots' && formatDisplayDate(bookingDate)}
                     {modalStep === 'form' && `${formatDisplayDate(bookingDate)} at ${formatTime12Hour(selectedTime)}`}
                     {modalStep === 'success' && 'Your appointment request has been sent'}
@@ -346,27 +443,153 @@ const ArtistProfile = () => {
                   </span>
                 </div>
               </div>
-              <button className="close-btn" onClick={closeModal} aria-label="Close modal">
+              <button type="button" className="close-btn" onClick={closeModal} aria-label="Close modal">
                 <X size={22} />
               </button>
             </div>
 
             {/* Step Indicator */}
-            {(modalStep === 'slots' || modalStep === 'form') && (
+            {(modalStep === 'calendar' || modalStep === 'slots' || modalStep === 'form') && (
               <div className="step-indicator">
-                <div className={`step ${modalStep === 'slots' || modalStep === 'form' ? 'active' : ''}`}>
+                <div className={`step ${modalStep === 'calendar' || modalStep === 'slots' || modalStep === 'form' ? 'active' : ''}`}>
                   <div className="step-number">1</div>
+                  <span className="step-label">Select Date</span>
+                </div>
+                <div className="step-connector"></div>
+                <div className={`step ${modalStep === 'slots' || modalStep === 'form' ? 'active' : ''}`}>
+                  <div className="step-number">2</div>
                   <span className="step-label">Select Time</span>
                 </div>
                 <div className="step-connector"></div>
                 <div className={`step ${modalStep === 'form' ? 'active' : ''}`}>
-                  <div className="step-number">2</div>
+                  <div className="step-number">3</div>
                   <span className="step-label">Booking Details</span>
                 </div>
               </div>
             )}
 
             <div className="modal-body">
+              {/* STEP 0: Calendar */}
+              {modalStep === 'calendar' && (
+                <div className="calendar-modal-wrapper">
+                  <div className="calendar-layout">
+                    {/* Left: The Month Calendar Card */}
+                    <div className="calendar-main">
+                      <div className="calendar-card">
+                        {/* Calendar Header */}
+                        <div className="calendar-header">
+                          <button 
+                            type="button"
+                            onClick={prevMonth} 
+                            disabled={
+                              currentMonth.getFullYear() === new Date().getFullYear() &&
+                              currentMonth.getMonth() === new Date().getMonth()
+                            } 
+                            className="calendar-nav-btn"
+                            aria-label="Previous month"
+                          >
+                            <ChevronLeft size={20} />
+                          </button>
+                          <span className="calendar-month-title">{getMonthYearString(currentMonth)}</span>
+                          <button 
+                            type="button"
+                            onClick={nextMonth} 
+                            disabled={
+                              currentMonth.getFullYear() === new Date().getFullYear() + 1 ||
+                              (currentMonth.getFullYear() === new Date().getFullYear() &&
+                                currentMonth.getMonth() >= new Date().getMonth() + 6)
+                            } 
+                            className="calendar-nav-btn"
+                            aria-label="Next month"
+                          >
+                            <ChevronRight size={20} />
+                          </button>
+                        </div>
+
+                        {/* Weekdays Headers */}
+                        <div className="calendar-weekdays-grid">
+                          {WEEKDAYS.map((wd) => (
+                            <div key={wd} className="calendar-weekday-label">{wd}</div>
+                          ))}
+                        </div>
+
+                        {/* Days Grid */}
+                        <div className="calendar-days-grid">
+                          {getCalendarDays(currentMonth).map((day, idx) => {
+                            const todayStr = getLocalDateString(new Date());
+                            const dayStr = getLocalDateString(day.date);
+                            const isPast = dayStr < todayStr;
+                            const isToday = dayStr === todayStr;
+
+                            const jsDay = day.date.getDay();
+                            const pythonDayIndex = jsDay === 0 ? 6 : jsDay - 1;
+                            const scheduleDay = artist.schedule?.find(s => s.day_of_week === pythonDayIndex);
+                            const isActive = scheduleDay ? scheduleDay.is_active : false;
+                            const isBookable = day.isCurrentMonth && !isPast && isActive;
+
+                            let cellClass = "calendar-day-cell";
+                            if (!day.isCurrentMonth) cellClass += " other-month";
+                            else if (isPast) cellClass += " is-past";
+                            else if (!isActive) cellClass += " is-inactive";
+                            else if (isBookable) cellClass += " is-bookable";
+                            
+                            if (isToday) cellClass += " is-today";
+
+                            return (
+                              <div key={idx} className="calendar-day-wrapper">
+                                {isBookable ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDateClick(day.date, scheduleDay)}
+                                    className={cellClass}
+                                  >
+                                    <span className="day-number">{day.date.getDate()}</span>
+                                    <span className="day-indicator available"></span>
+                                  </button>
+                                ) : (
+                                  <div className={cellClass}>
+                                    <span className="day-number">{day.date.getDate()}</span>
+                                    {day.isCurrentMonth && !isPast && !isActive && (
+                                      <span className="day-indicator closed"></span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Working Hours Summary */}
+                    <div className="calendar-sidebar">
+                      <div className="hours-summary-card">
+                        <h3>Weekly Work Hours</h3>
+                        <p className="summary-desc">General weekly schedule & breaks:</p>
+                        <div className="weekly-schedule-list">
+                          {artist.schedule && artist.schedule.map((day) => (
+                            <div key={day.id} className={`weekly-schedule-row ${day.is_active ? 'active' : 'inactive'}`}>
+                              <span className="row-day">{day.day_name}</span>
+                              <div className="row-hours">
+                                {day.is_active ? (
+                                  <>
+                                    <span className="hours-text">{formatTime(day.start_time)} - {formatTime(day.end_time)}</span>
+                                    {day.break_start && (
+                                      <span className="break-text">Break: {formatTime(day.break_start)} - {formatTime(day.break_end)}</span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <span className="closed-text">Closed</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
               {/* STEP 1: Time Slots */}
               {modalStep === 'slots' && (
                 <>
@@ -645,16 +868,7 @@ function formatTime12Hour(timeString) {
   return `${h12}:${minute} ${ampm}`;
 }
 
-function getNextDayDate(pythonDayIndex) {
-  const jsDayMap = { 0: 1, 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 0 };
-  const targetDay = jsDayMap[pythonDayIndex];
-  const date = new Date();
-  const currentDay = date.getDay();
-  let daysUntil = targetDay - currentDay;
-  if (daysUntil <= 0) daysUntil += 7;
-  date.setDate(date.getDate() + daysUntil);
-  return date.toISOString().split('T')[0];
-}
+// getNextDayDate removed in favor of direct calendar cell dates
 
 function formatDisplayDate(dateString) {
   if (!dateString) return '';

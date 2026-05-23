@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 from core.models import BaseModel
+from apps.price.constants import PLACEMENT_CHOICES
 
 
 class Appointment(BaseModel):
@@ -21,16 +22,7 @@ class Appointment(BaseModel):
         ("touchup", "Touch-up"),
     ]
 
-    PLACEMENT_CHOICES = [
-        ("arm", "Arm"),
-        ("leg", "Leg"),
-        ("back", "Back"),
-        ("chest", "Chest"),
-        ("neck", "Neck"),
-        ("stomach", "Stomach"),
-        ("ribs", "Ribs"),
-        ("other", "Other"),
-    ]
+    PLACEMENT_CHOICES = PLACEMENT_CHOICES
 
     # --- 1. WHO ---
     customer = models.ForeignKey(
@@ -63,7 +55,7 @@ class Appointment(BaseModel):
         help_text="e.g. Traditional, Realism, Fine Line",
     )
     placement = models.CharField(
-        max_length=100, choices=PLACEMENT_CHOICES, default="arm"
+        max_length=100, choices=PLACEMENT_CHOICES, default="forearm"
     )
     size_description = models.CharField(
         max_length=100,
