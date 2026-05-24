@@ -5,6 +5,7 @@ import {
     DollarSign, FileText, Eye, TrendingUp, Briefcase, AlertCircle,
     Filter, ChevronDown, BarChart3, RefreshCcw, Activity
 } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 import './ArtistAppointments.css';
 
 const API_BASE_URL = 'http://localhost:8000';
@@ -18,6 +19,12 @@ const ArtistAppointments = () => {
     const [actionLoading, setActionLoading] = useState(null);
     const [filterStatus, setFilterStatus] = useState('all');
     const [showStats, setShowStats] = useState(true);
+    // NEW: Completion amount modal state
+    const [completionModal, setCompletionModal] = useState({
+        isOpen: false,
+        appointment: null,
+        receivedAmount: '',
+    });
 
     const listRef = useRef(null);
 
@@ -45,6 +52,11 @@ const ArtistAppointments = () => {
         isOpen: false,
         appointment: null,
         newStatus: ''
+    });
+
+    const [refundModal, setRefundModal] = useState({
+        isOpen: false,
+        appointment: null
     });
 
     const fetchAppointments = async () => {
@@ -147,16 +159,34 @@ const ArtistAppointments = () => {
 
             if (quoteModal.action === 'accept') {
                 if (!quoteModal.priceQuote) {
-                    alert('Please enter a price quote');
+                    toast.error('Please enter a price quote');
                     setActionLoading(null);
                     return;
                 }
-                payload.price_quote = parseFloat(quoteModal.priceQuote);
+                const quote = parseFloat(quoteModal.priceQuote);
+                if (quote < 0) {
+                    toast.error('Price quote cannot be negative');
+                    setActionLoading(null);
+                    return;
+                }
+                payload.price_quote = quote;
                 if (quoteModal.depositAmount) {
-                    payload.deposit_amount = parseFloat(quoteModal.depositAmount);
+                    const deposit = parseFloat(quoteModal.depositAmount);
+                    if (deposit < 0) {
+                        toast.error('Deposit amount cannot be negative');
+                        setActionLoading(null);
+                        return;
+                    }
+                    if (deposit >= quote) {
+                        toast.error('Deposit must be less than the price quote');
+                        setActionLoading(null);
+                        return;
+                    }
+                    payload.deposit_amount = deposit;
                 }
             }
 
+            const toastId = toast.loading("Processing...");
             const res = await fetch(`${API_BASE_URL}/api/appointments/manage/${quoteModal.appointment.id}/`, {
                 method: 'PATCH',
                 headers: {
@@ -168,14 +198,15 @@ const ArtistAppointments = () => {
 
             if (res.ok) {
                 await fetchAppointments();
+                toast.success(quoteModal.action === 'accept' ? 'Appointment accepted!' : 'Appointment declined.', { id: toastId });
                 closeQuoteModal();
             } else {
                 const data = await res.json();
-                alert(data.error || 'Failed to update appointment');
+                toast.error(data.error || 'Failed to update appointment', { id: toastId });
             }
         } catch (error) {
             console.error("Error managing appointment:", error);
-            alert('Connection error');
+            toast.error('Connection error');
         } finally {
             setActionLoading(null);
         }
@@ -183,8 +214,31 @@ const ArtistAppointments = () => {
 
     const handleUpdateStatus = async () => {
         if (!statusModal.appointment) return;
+        // Prevent completing before appointment time
+        if (statusModal.newStatus === 'completed' && isUpcoming(statusModal.appointment.appointment_datetime)) {
+            toast.error('Cannot mark as completed before the appointment time.');
+            return;
+        }
+        // Intercept cancelled status if deposit is paid to trigger refund
+        if (statusModal.newStatus === 'cancelled' && statusModal.appointment.is_deposit_paid && !statusModal.appointment.is_refunded) {
+            setRefundModal({ isOpen: true, appointment: statusModal.appointment });
+            closeStatusModal();
+            return;
+        }
+        // If completing, open completion modal to capture received amount
+        if (statusModal.newStatus === 'completed') {
+            const remaining = parseFloat(statusModal.appointment.price_quote || 0) - parseFloat(statusModal.appointment.deposit_amount || 0);
+            setCompletionModal({
+                isOpen: true,
+                appointment: statusModal.appointment,
+                receivedAmount: remaining > 0 ? remaining.toFixed(2) : '',
+            });
+            closeStatusModal();
+            return;
+        }
+        // Otherwise, proceed with normal status update
         setActionLoading(statusModal.appointment.id);
-
+        const toastId = toast.loading("Updating status...");
         try {
             const token = localStorage.getItem('access');
             const res = await fetch(`${API_BASE_URL}/api/appointments/manage/${statusModal.appointment.id}/`, {
@@ -195,20 +249,87 @@ const ArtistAppointments = () => {
                 },
                 body: JSON.stringify({
                     status: statusModal.newStatus,
-                    action: 'update_status' // Ensure your backend handles this action or ignores it
+                    action: 'update_status'
                 })
             });
-
             if (res.ok) {
                 await fetchAppointments();
+                toast.success('Status updated successfully.', { id: toastId });
                 closeStatusModal();
             } else {
                 const data = await res.json();
-                alert(data.error || 'Failed to update status');
+                toast.error(data.error || 'Failed to update status', { id: toastId });
             }
         } catch (error) {
-            console.error("Error updating status:", error);
-            alert('Connection error');
+            console.error('Error updating status:', error);
+            toast.error('Connection error', { id: toastId });
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    // Handler for completing appointment with received amount
+    const handleCompleteAppointment = async () => {
+        if (!completionModal.appointment) return;
+        setActionLoading(completionModal.appointment.id);
+        try {
+            const token = localStorage.getItem('access');
+            const amount = parseFloat(completionModal.receivedAmount) || 0;
+            if (amount < 0) {
+                toast.error('Received amount cannot be negative');
+                setActionLoading(null);
+                return;
+            }
+            const toastId = toast.loading("Completing appointment...");
+            const res = await fetch(`${API_BASE_URL}/api/appointments/manage/${completionModal.appointment.id}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: 'completed',
+                    received_amount: amount,
+                    action: 'update_status'
+                })
+            });
+            if (res.ok) {
+                await fetchAppointments();
+                toast.success("Appointment marked as completed!", { id: toastId });
+                setCompletionModal({ isOpen: false, appointment: null, receivedAmount: '' });
+            } else {
+                const data = await res.json();
+                toast.error(data.error || 'Failed to complete appointment', { id: toastId });
+            }
+        } catch (error) {
+            console.error('Error completing appointment:', error);
+            toast.error('Connection error');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleRefundAppointment = async () => {
+        if (!refundModal.appointment) return;
+        setActionLoading(refundModal.appointment.id);
+        const toastId = toast.loading("Processing refund...");
+        try {
+            const token = localStorage.getItem('access');
+            const res = await fetch(`${API_BASE_URL}/api/appointments/cancel/${refundModal.appointment.id}/`, {
+                method: 'PATCH',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                await fetchAppointments();
+                toast.success("Appointment cancelled and refunded.", { id: toastId });
+                setRefundModal({ isOpen: false, appointment: null });
+            } else {
+                const data = await res.json();
+                toast.error(data.error || 'Failed to refund appointment', { id: toastId });
+            }
+        } catch (error) {
+            console.error("Error refunding:", error);
+            toast.error('Connection error', { id: toastId });
         } finally {
             setActionLoading(null);
         }
@@ -235,6 +356,7 @@ const ArtistAppointments = () => {
 
     return (
         <div className="appointments-wrapper">
+            <Toaster position="bottom-right" />
             {/* Statistics Dashboard */}
             {statistics && showStats && (
                 <div className="statistics-section">
@@ -251,6 +373,7 @@ const ArtistAppointments = () => {
                         <StatCard icon={<XCircle size={20} />} label="Declined" value={statistics.cancelled} color="#ef4444" clickable={true} onClick={() => handleStatClick('cancelled')} />
                         <StatCard icon={<TrendingUp size={20} />} label="Completed" value={statistics.completed} color="#3b82f6" clickable={true} onClick={() => handleStatClick('completed')} />
                         <StatCard icon={<DollarSign size={20} />} label="Revenue" value={`$${parseFloat(statistics.total_revenue || 0).toFixed(2)}`} color="#8b5cf6" subtext={`$${parseFloat(statistics.pending_revenue || 0).toFixed(2)} pending`} />
+                        <StatCard icon={<AlertCircle size={20} />} label="Refunded" value={`$${parseFloat(statistics.refunded_revenue || 0).toFixed(2)}`} color="#ef4444" />
                     </div>
                 </div>
             )}
@@ -329,7 +452,7 @@ const ArtistAppointments = () => {
                                     </>
                                 )}
 
-                                {(appt.status === 'confirmed' || appt.status === 'completed') && (
+                                {appt.status === 'completed' && (
                                     <button 
                                         className="btn-track-healing" 
                                         onClick={() => navigate(`/explore/healing?appt=${appt.id}`)}
@@ -350,7 +473,12 @@ const ArtistAppointments = () => {
                     <div className="no-data">
                         <Briefcase size={48} />
                         <p>No {filterStatus !== 'all' ? filterStatus : ''} appointments found.</p>
-                        {filterStatus !== 'all' && <button className="clear-filter-btn" onClick={() => setFilterStatus('all')}>Show All</button>}
+                        {filterStatus !== 'all' && (
+                            <button className="clear-filter-btn" onClick={() => setFilterStatus('all')}>Show All</button>
+                        )}
+                        {filterStatus === 'upcoming' && (
+                            <button className="clear-filter-btn" onClick={() => navigate('/artists')}>Browse Artists</button>
+                        )}
                     </div>
                 )}
             </div>
@@ -374,11 +502,11 @@ const ArtistAppointments = () => {
                             <div className="quote-form">
                                 <div className="form-group">
                                     <label><DollarSign size={14} /> Price Quote *</label>
-                                    <input type="number" value={quoteModal.priceQuote} onChange={(e) => setQuoteModal({ ...quoteModal, priceQuote: e.target.value })} className="price-input" />
+                                    <input type="number" min="0" value={quoteModal.priceQuote} onChange={(e) => setQuoteModal({ ...quoteModal, priceQuote: e.target.value })} className="price-input" />
                                 </div>
                                 <div className="form-group">
                                     <label><DollarSign size={14} /> Deposit Amount (Optional)</label>
-                                    <input type="number" value={quoteModal.depositAmount} onChange={(e) => setQuoteModal({ ...quoteModal, depositAmount: e.target.value })} className="price-input" />
+                                    <input type="number" min="0" value={quoteModal.depositAmount} onChange={(e) => setQuoteModal({ ...quoteModal, depositAmount: e.target.value })} className="price-input" />
                                 </div>
                             </div>
                         )}
@@ -420,6 +548,50 @@ const ArtistAppointments = () => {
                             <button className="btn-cancel" onClick={closeStatusModal}>Cancel</button>
                             <button className="btn-confirm-accept" onClick={handleUpdateStatus} disabled={actionLoading}>
                                 {actionLoading ? 'Updating...' : 'Update Status'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Completion Modal */}
+            {completionModal.isOpen && (
+                <div className="quote-modal-overlay" onClick={() => setCompletionModal({ isOpen: false, appointment: null, receivedAmount: '' })}>
+                    <div className="quote-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h3>Complete Appointment - Received Amount</h3>
+                        <div className="form-group">
+                            <label><DollarSign size={14} /> Received Amount (Remaining)</label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={completionModal.receivedAmount}
+                                onChange={e => setCompletionModal({ ...completionModal, receivedAmount: e.target.value })}
+                                className="price-input"
+                            />
+                        </div>
+                        <div className="quote-modal-actions">
+                            <button className="btn-cancel" onClick={() => setCompletionModal({ isOpen: false, appointment: null, receivedAmount: '' })}>Cancel</button>
+                            <button className="btn-confirm-accept" onClick={handleCompleteAppointment} disabled={actionLoading}>
+                                {actionLoading ? 'Updating...' : 'Confirm Completion'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Refund Modal */}
+            {refundModal.isOpen && (
+                <div className="quote-modal-overlay" onClick={() => setRefundModal({ isOpen: false, appointment: null })}>
+                    <div className="quote-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h3>Cancel & Refund Appointment</h3>
+                        <div className="form-group">
+                            <p style={{ color: '#e4e4e7', fontSize: '14px', lineHeight: '1.5' }}>
+                                Are you sure you want to cancel this appointment? <br /><br />
+                                The client's deposit of <strong>${parseFloat(refundModal.appointment.deposit_amount || 0).toFixed(2)}</strong> will be fully refunded to their original payment method.
+                            </p>
+                        </div>
+                        <div className="quote-modal-actions">
+                            <button className="btn-cancel" onClick={() => setRefundModal({ isOpen: false, appointment: null })}>Close</button>
+                            <button className="btn-confirm-decline" onClick={handleRefundAppointment} disabled={actionLoading}>
+                                {actionLoading ? 'Processing...' : 'Confirm Refund'}
                             </button>
                         </div>
                     </div>

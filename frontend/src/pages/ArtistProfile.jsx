@@ -626,15 +626,17 @@ const ArtistProfile = () => {
                         {slots.map((slot, index) => (
                           <button
                             key={index}
-                            disabled={!slot.available}
+                            disabled={!slot.available || (bookingDate === getLocalDateString(new Date()) && isPastTime(slot.value))}
                             onClick={() => handleBookSlot(slot.value)}
-                            className={`slot-popup-btn ${slot.available ? 'available' : 'occupied'}`}
+                            className={`slot-popup-btn ${!slot.available ? 'occupied' : (bookingDate === getLocalDateString(new Date()) && isPastTime(slot.value)) ? 'occupied past' : 'available'}`}
                           >
-                            <span className="slot-time">{slot.time}</span>
-                            {slot.available ? (
-                              <span className="slot-action">Book</span>
-                            ) : (
+                             <span className="slot-time">{slot.time}</span>
+                            {!slot.available ? (
                               <span className="slot-status">Booked</span>
+                            ) : (bookingDate === getLocalDateString(new Date()) && isPastTime(slot.value)) ? (
+                              <span className="slot-status">Past</span>
+                            ) : (
+                              <span className="slot-action">Book</span>
                             )}
                           </button>
                         ))}
@@ -875,6 +877,16 @@ function formatDisplayDate(dateString) {
   const date = new Date(dateString);
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   return date.toLocaleDateString('en-US', options);
+}
+
+// Helper to determine if a slot time is in the past for today
+function isPastTime(slotTime) {
+  if (!slotTime) return false;
+  const now = new Date();
+  const [hourStr, minuteStr] = slotTime.split(':');
+  const slotDate = new Date();
+  slotDate.setHours(parseInt(hourStr, 10), parseInt(minuteStr, 10), 0, 0);
+  return slotDate <= now;
 }
 
 export default ArtistProfile;

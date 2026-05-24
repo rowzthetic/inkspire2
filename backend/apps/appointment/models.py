@@ -89,6 +89,13 @@ class Appointment(BaseModel):
         blank=True,
         help_text="Required deposit amount",
     )
+    received_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Final amount received for completed appointment",
+    )
     is_deposit_paid = models.BooleanField(default=False)
     is_refunded = models.BooleanField(default=False)
     stripe_payment_intent_id = models.CharField(max_length=255, blank=True, null=True)

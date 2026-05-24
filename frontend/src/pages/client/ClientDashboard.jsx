@@ -1,4 +1,4 @@
-// import { useState, useEffect } from 'react';
+    // import { useState, useEffect } from 'react';
 // import { useLocation, useNavigate } from 'react-router-dom'; // 👈 Added router hooks
 // import { useAuth } from '../../context/AuthContext';
 // import { 
@@ -474,7 +474,7 @@ const ClientDashboard = () => {
                                     <div className="client-card-actions" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '16px' }}>
                                         
                                         {/* Track Healing Button */}
-                                        {(appointment.status === 'confirmed' || appointment.status === 'completed') && (
+                                        {appointment.status === 'completed' && (
                                             <button 
                                                 className="client-track-btn"
                                                 onClick={() => navigate(`/explore/healing?appt=${appointment.id}`)}

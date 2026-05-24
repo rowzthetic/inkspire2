@@ -94,6 +94,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
             "reference_image_url",  # Full URL for frontend
             "price_quote",
             "deposit_amount",
+            "received_amount",
             "is_deposit_paid",
             "is_refunded",
             "rejection_reason",

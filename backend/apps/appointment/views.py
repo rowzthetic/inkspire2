@@ -277,10 +277,13 @@ class ArtistAppointmentListView(generics.ListAPIView):
                 status="confirmed", appointment_datetime__gte=now
             ).count(),
             "total_revenue": sum(
-                appt.price_quote or 0 for appt in queryset.filter(status="completed")
+                appt.received_amount or appt.price_quote or 0 for appt in queryset.filter(status="completed")
             ),
             "pending_revenue": sum(
                 appt.price_quote or 0 for appt in queryset.filter(status="confirmed")
+            ),
+            "refunded_revenue": sum(
+                appt.received_amount or 0 for appt in queryset.filter(is_refunded=True)
             ),
         }
 
@@ -318,6 +321,15 @@ class ClientAppointmentListView(generics.ListAPIView):
             "upcoming": queryset.filter(
                 status="confirmed", appointment_datetime__gte=now
             ).count(),
+            "total_revenue": sum(
+                appt.received_amount or appt.price_quote or 0 for appt in queryset.filter(status="completed")
+            ),
+            "pending_revenue": sum(
+                appt.price_quote or 0 for appt in queryset.filter(status="confirmed")
+            ),
+            "refunded_revenue": sum(
+                appt.received_amount or 0 for appt in queryset.filter(is_refunded=True)
+            ),
         }
 
         return Response({"appointments": serializer.data, "statistics": stats})
@@ -386,9 +398,24 @@ class AppointmentManageView(APIView):
                     {"error": "Price quote is required to accept an appointment."},
                     status=400,
                 )
+            if float(price_quote) < 0:
+                return Response(
+                    {"error": "Price quote cannot be negative."},
+                    status=400,
+                )
             appointment.status = "confirmed"
             appointment.price_quote = price_quote
             if deposit_amount:
+                if float(deposit_amount) < 0:
+                    return Response(
+                        {"error": "Deposit amount cannot be negative."},
+                        status=400,
+                    )
+                if float(deposit_amount) >= float(price_quote):
+                    return Response(
+                        {"error": "Deposit amount must be less than the price quote."},
+                        status=400,
+                    )
                 appointment.deposit_amount = deposit_amount
             if artist_notes:
                 appointment.artist_notes = artist_notes
@@ -443,6 +470,16 @@ class AppointmentManageView(APIView):
         elif action == "update_status":
             status_val = request.data.get("status")
             if status_val:
+                # Prevent completing before appointment time
+                if status_val == "completed":
+                    if appointment.appointment_datetime > timezone.now():
+                        return Response({"error": "Cannot mark appointment as completed before its scheduled time."}, status=400)
+                    # Capture received amount if provided
+                    received_amount = request.data.get("received_amount")
+                    if received_amount is not None:
+                        if float(received_amount) < 0:
+                            return Response({"error": "Received amount cannot be negative."}, status=400)
+                        appointment.received_amount = received_amount
                 appointment.status = status_val
                 appointment.save()
                 return Response(
