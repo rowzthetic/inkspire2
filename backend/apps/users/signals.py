@@ -42,9 +42,12 @@ def send_approval_email(sender, instance, created, **kwargs):
                 },
             )
 
-            email = EmailMessage(mail_subject, message, to=[instance.email])
-            email.send()
-            print(f"Approval email sent to {instance.email}")
+            try:
+                email = EmailMessage(mail_subject, message, to=[instance.email])
+                email.send()
+                print(f"Approval email sent to {instance.email}")
+            except Exception as e:
+                print(f"Failed to send approval email to {instance.email}: {e}")
 
             # Remove the flag to prevent double sending (in memory)
             instance._is_being_activated = False
