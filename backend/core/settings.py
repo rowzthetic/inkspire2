@@ -122,7 +122,7 @@ if os.getenv("CLOUDINARY_URL"):
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
 else:
@@ -131,12 +131,12 @@ else:
             "BACKEND": "django.core.files.storage.FileSystemStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
 
 # Note: STATICFILES_STORAGE is deprecated in Django 4.2+; use STORAGES["staticfiles"] above.
-STATICFILES_STORAGE = "cloudinary_storage.storage.StaticHashedCloudinaryStorage" if os.getenv("CLOUDINARY_URL") else "whitenoise.storage.CompressedStaticFilesStorage"
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 # Media Files (For User Uploads / Shop Images)
 MEDIA_URL = "/media/"
