@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { MapPin, ArrowRight, Search, Filter, Star, X } from 'lucide-react';
 import './Artists.css';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://inkspire2.onrender.com';
 
 // Common tattoo styles for filter
 const TATTOO_STYLES = [

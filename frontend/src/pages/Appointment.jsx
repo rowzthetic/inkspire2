@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import './Appointment.css'; 
+import './Appointment.css';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://inkspire2.onrender.com';
 
 const Appointment = () => {
     const { artistId } = useParams();
@@ -23,7 +23,7 @@ const Appointment = () => {
         description: '',
         image: null
     });
-    
+
     const [availableSlots, setAvailableSlots] = useState([]); // Store slots here
     const [loadingSlots, setLoadingSlots] = useState(false);
 
@@ -67,7 +67,7 @@ const Appointment = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem('access');
-        
+
         if (!token) {
             alert("You must be logged in!");
             navigate('/login');
@@ -89,7 +89,7 @@ const Appointment = () => {
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: data
             });
-            
+
             if (res.status === 401) {
                 alert("Session expired. Please log in.");
                 localStorage.removeItem('access');
@@ -100,7 +100,7 @@ const Appointment = () => {
             const result = await res.json();
             if (res.ok) {
                 alert("Appointment Request Sent!");
-                navigate('/dashboard'); 
+                navigate('/dashboard');
             } else {
                 alert(JSON.stringify(result) || "Booking failed");
             }
@@ -113,17 +113,17 @@ const Appointment = () => {
     return (
         <div className="appointment-container">
             <h2>Book Appointment</h2>
-            
+
             <form onSubmit={handleSubmit} className="appointment-form">
-                
+
                 {/* DATE INPUT */}
                 <label>Date:</label>
-                <input 
-                    type="date" 
-                    name="date" 
-                    required 
-                    value={formData.date} 
-                    onChange={handleChange} 
+                <input
+                    type="date"
+                    name="date"
+                    required
+                    value={formData.date}
+                    onChange={handleChange}
                 />
 
                 {/* 👇 NEW: SLOT SELECTOR */}
@@ -140,7 +140,7 @@ const Appointment = () => {
                                         key={index}
                                         disabled={!slot.available}
                                         onClick={() => handleSlotClick(slot.value)}
-                                        className={`mini-slot-btn ${slot.available ? 'open' : 'taken'} ${formData.time === slot.value.slice(0,5) ? 'selected' : ''}`}
+                                        className={`mini-slot-btn ${slot.available ? 'open' : 'taken'} ${formData.time === slot.value.slice(0, 5) ? 'selected' : ''}`}
                                     >
                                         {slot.time}
                                     </button>
@@ -152,12 +152,12 @@ const Appointment = () => {
 
                 {/* TIME INPUT (Updates automatically when slot is clicked) */}
                 <label>Time:</label>
-                <input 
-                    type="time" 
-                    name="time" 
-                    required 
-                    value={formData.time} 
-                    onChange={handleChange} 
+                <input
+                    type="time"
+                    name="time"
+                    required
+                    value={formData.time}
+                    onChange={handleChange}
                 />
 
                 <label>Placement:</label>

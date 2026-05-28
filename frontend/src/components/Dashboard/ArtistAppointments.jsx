@@ -8,7 +8,7 @@ import {
 import toast, { Toaster } from 'react-hot-toast';
 import './ArtistAppointments.css';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://inkspire2.onrender.com';
 
 const ArtistAppointments = () => {
     const navigate = useNavigate();
@@ -336,8 +336,8 @@ const ArtistAppointments = () => {
     };
 
     const StatCard = ({ icon, label, value, color, subtext, onClick, clickable = false }) => (
-        <div 
-            className="stat-card" 
+        <div
+            className="stat-card"
             style={{ borderLeftColor: color, cursor: clickable ? 'pointer' : 'inherit' }}
             onClick={onClick}
         >
@@ -453,8 +453,8 @@ const ArtistAppointments = () => {
                                 )}
 
                                 {appt.status === 'completed' && (
-                                    <button 
-                                        className="btn-track-healing" 
+                                    <button
+                                        className="btn-track-healing"
                                         onClick={() => navigate(`/explore/healing?appt=${appt.id}`)}
                                         title="Track tattoo healing progress"
                                     >

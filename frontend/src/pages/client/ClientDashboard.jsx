@@ -1,4 +1,4 @@
-    // import { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 // import { useLocation, useNavigate } from 'react-router-dom'; // 👈 Added router hooks
 // import { useAuth } from '../../context/AuthContext';
 // import { 
@@ -8,7 +8,7 @@
 // } from 'lucide-react';
 // import './ClientDashboard.css';
 
-// const API_BASE_URL = 'http://localhost:8000';
+// const API_BASE_URL = 'https://inkspire2.onrender.com';
 
 // const ClientDashboard = () => {
 //     const { user } = useAuth();
@@ -34,8 +34,8 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { 
-    Calendar, Clock, User, MapPin, DollarSign, CheckCircle, XCircle, 
+import {
+    Calendar, Clock, User, MapPin, DollarSign, CheckCircle, XCircle,
     Clock3, Image as ImageIcon, AlertCircle, ChevronRight, Briefcase,
     Filter, Eye, FileText, CreditCard, Activity
 } from 'lucide-react';
@@ -43,7 +43,7 @@ import './ClientDashboard.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://inkspire2.onrender.com';
 
 const ClientDashboard = () => {
     const { user } = useAuth();
@@ -131,7 +131,7 @@ const ClientDashboard = () => {
     const handleCancelAppointment = async (appointment) => {
         // Dynamic Warning Message
         let confirmMessage = 'Are you sure you want to cancel this appointment?';
-        
+
         if (appointment.is_deposit_paid) {
             confirmMessage = 'Are you sure you want to cancel?\n\nYour deposit will be fully refunded to your original payment method.';
         }
@@ -175,9 +175,9 @@ const ClientDashboard = () => {
                 }
             });
             const data = await res.json();
-            
+
             if (res.ok && data.url) {
-                window.location.href = data.url; 
+                window.location.href = data.url;
             } else {
                 toast.error("Failed to initiate payment: " + (data.error || "Unknown error"));
             }
@@ -285,7 +285,7 @@ const ClientDashboard = () => {
         <div className="client-dashboard">
             {/* Toast notifications */}
             <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
-            
+
             {/* Header */}
             <div className="client-dashboard-header">
                 <div className="header-content">
@@ -303,25 +303,25 @@ const ClientDashboard = () => {
                 <div className="client-statistics">
                     <h3><Filter size={18} /> Overview</h3>
                     <div className="client-stats-grid">
-                        <StatCard 
-                            icon={<Clock3 size={20} />} label="Pending" 
+                        <StatCard
+                            icon={<Clock3 size={20} />} label="Pending"
                             value={statistics.pending ?? appointments.filter(a => a.status === 'pending').length}
                             color="#f59e0b" subtext="Awaiting artist approval"
                             onClick={() => setActiveTab('pending')}
                         />
-                        <StatCard 
+                        <StatCard
                             icon={<CheckCircle size={20} />} label="Confirmed"
                             value={statistics.confirmed ?? appointments.filter(a => a.status === 'confirmed').length}
                             color="#10b981" subtext={`${statistics?.upcoming ?? 0} upcoming`}
                             onClick={() => setActiveTab('confirmed')}
                         />
-                        <StatCard 
+                        <StatCard
                             icon={<CheckCircle size={20} />} label="Completed"
                             value={statistics.completed ?? appointments.filter(a => a.status === 'completed').length}
                             color="#3b82f6"
                             onClick={() => setActiveTab('completed')}
                         />
-                        <StatCard 
+                        <StatCard
                             icon={<XCircle size={20} />} label="Cancelled"
                             value={statistics.cancelled ?? appointments.filter(a => a.status === 'cancelled').length}
                             color="#ef4444"
@@ -338,10 +338,10 @@ const ClientDashboard = () => {
                         <Calendar size={16} /> All Upcoming
                     </button>
                     <button className={`client-tab ${activeTab === 'pending' ? 'active' : ''}`} onClick={() => setActiveTab('pending')}>
-                         Pending
+                        Pending
                     </button>
                     <button className={`client-tab ${activeTab === 'confirmed' ? 'active' : ''}`} onClick={() => setActiveTab('confirmed')}>
-                         Confirmed
+                        Confirmed
                     </button>
                     <button className={`client-tab ${activeTab === 'completed' ? 'active' : ''}`} onClick={() => setActiveTab('completed')}>
                         <CheckCircle size={16} /> Completed
@@ -431,11 +431,11 @@ const ClientDashboard = () => {
                                                         <span className="price-value">
                                                             ${appointment.deposit_amount}
                                                             {appointment.is_deposit_paid ? (
-                                                                <span className="paid-badge" style={{color: '#10b981', marginLeft: '10px', fontSize: '0.8rem'}}>✓ Paid</span>
+                                                                <span className="paid-badge" style={{ color: '#10b981', marginLeft: '10px', fontSize: '0.8rem' }}>✓ Paid</span>
                                                             ) : appointment.is_refunded ? (
-                                                                <span className="refunded-badge" style={{color: '#f59e0b', marginLeft: '10px', fontSize: '0.8rem'}}>↺ Refunded</span>
+                                                                <span className="refunded-badge" style={{ color: '#f59e0b', marginLeft: '10px', fontSize: '0.8rem' }}>↺ Refunded</span>
                                                             ) : (
-                                                                <span className="pending-badge" style={{color: '#f59e0b', marginLeft: '10px', fontSize: '0.8rem'}}>Pending</span>
+                                                                <span className="pending-badge" style={{ color: '#f59e0b', marginLeft: '10px', fontSize: '0.8rem' }}>Pending</span>
                                                             )}
                                                         </span>
                                                     </div>
@@ -457,7 +457,7 @@ const ClientDashboard = () => {
                                         <div className="client-reference-section">
                                             <h4><ImageIcon size={16} /> Reference Image</h4>
                                             <div className="client-reference-image-wrapper">
-                                                <img 
+                                                <img
                                                     src={appointment.reference_image_url} alt="Reference" className="client-reference-image"
                                                     onClick={() => setSelectedImage(appointment.reference_image_url)}
                                                 />
@@ -472,10 +472,10 @@ const ClientDashboard = () => {
                                 {/* Card Actions */}
                                 {(appointment.status === 'pending' || appointment.status === 'confirmed' || appointment.status === 'completed') && (
                                     <div className="client-card-actions" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '16px' }}>
-                                        
+
                                         {/* Track Healing Button */}
                                         {appointment.status === 'completed' && (
-                                            <button 
+                                            <button
                                                 className="client-track-btn"
                                                 onClick={() => navigate(`/explore/healing?appt=${appointment.id}`)}
                                                 style={{
@@ -492,7 +492,7 @@ const ClientDashboard = () => {
 
                                         {/* Stripe Payment Button */}
                                         {appointment.status === 'confirmed' && !appointment.is_deposit_paid && appointment.deposit_amount && (
-                                            <button 
+                                            <button
                                                 className="client-pay-btn"
                                                 onClick={() => handlePayment(appointment.id)}
                                                 style={{
@@ -508,7 +508,7 @@ const ClientDashboard = () => {
                                         )}
 
                                         {/* 👇 UPDATED: Now passes the full appointment object */}
-                                        <button 
+                                        <button
                                             className="client-cancel-btn"
                                             onClick={() => handleCancelAppointment(appointment)}
                                         >

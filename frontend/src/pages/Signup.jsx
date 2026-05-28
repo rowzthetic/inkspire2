@@ -7,7 +7,7 @@
 
 //   // Step state: 'form' = Details, 'otp' = Verification
 //   const [step, setStep] = useState('form');
-  
+
 //   const [formData, setFormData] = useState({
 //     username: '',
 //     email: '',
@@ -50,7 +50,7 @@
 
 //       // 1. Send Registration Data
 //       // Matches Backend: path("register/", ...) -> /api/auth/register/
-//       const response = await fetch('http://localhost:8000/api/auth/register/', {
+//       const response = await fetch('https://inkspire2.onrender.com/api/auth/register/', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify(payload)
@@ -86,7 +86,7 @@
 //     try {
 //       // 2. Send OTP for Verification
 //       // Matches Backend: path("verify-otp/", ...) -> /api/auth/verify-otp/
-//       const response = await fetch('http://localhost:8000/api/auth/verify-otp/', {
+//       const response = await fetch('https://inkspire2.onrender.com/api/auth/verify-otp/', {
 //         method: 'POST',
 //         headers: { 'Content-Type': 'application/json' },
 //         body: JSON.stringify({
@@ -121,10 +121,10 @@
 
 //   return (
 //     <div className="contact" style={{ minHeight: '80vh', paddingTop: '120px' }}>
-      
+
 //       {/* --- FORM HEADER --- */}
 //       <h2>{step === 'form' ? 'Create an Account' : 'Verify Email'}</h2>
-      
+
 //       {status.message && (
 //         <div style={{
 //           padding: '10px', margin: '0 auto 15px auto', borderRadius: '4px',
@@ -151,7 +151,7 @@
 //             type="tel" name="phone_number" placeholder="Phone Number" required 
 //             value={formData.phone_number} onChange={handleChange}
 //           />
-          
+
 //           {/* Artist Toggle */}
 //           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '15px 0', color: '#fff', width: '100%' }}>
 //             <input 
@@ -192,7 +192,7 @@
 //       {step === 'otp' && (
 //         <form className="contact-form" onSubmit={handleVerifyOtp}>
 //           <p style={{color: 'white'}}>Enter the 6-digit code sent to {formData.email}</p>
-          
+
 //           <input 
 //             type="text" name="otp" placeholder="XXXXXX" 
 //             required maxLength="6"
@@ -233,7 +233,7 @@ export default function Signup() {
 
   // Step state: 'form' = Details, 'otp' = Verification
   const [step, setStep] = useState('form');
-  
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -276,7 +276,7 @@ export default function Signup() {
         instagram_link: formData.is_artist ? formData.instagram_link : ""
       };
 
-      const response = await fetch('http://localhost:8000/api/auth/register/', {
+      const response = await fetch('https://inkspire2.onrender.com/api/auth/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -286,8 +286,8 @@ export default function Signup() {
 
       if (!response.ok) {
         // Handle validation errors from Django
-        const errorMsg = typeof data === 'object' 
-          ? Object.values(data).flat().join(' ') 
+        const errorMsg = typeof data === 'object'
+          ? Object.values(data).flat().join(' ')
           : 'Registration failed';
         throw new Error(errorMsg);
       }
@@ -310,7 +310,7 @@ export default function Signup() {
     setStatus({ type: '', message: '' });
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/verify-otp/', {
+      const response = await fetch('https://inkspire2.onrender.com/api/auth/verify-otp/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -338,10 +338,10 @@ export default function Signup() {
 
   return (
     <div className="contact" style={{ minHeight: '80vh', paddingTop: '120px' }}>
-      
+
       {/* --- FORM HEADER --- */}
       <h2>{step === 'form' ? 'Create an Account' : 'Verify Email'}</h2>
-      
+
       {status.message && (
         <div style={{
           padding: '10px', margin: '0 auto 15px auto', borderRadius: '4px',
@@ -356,38 +356,38 @@ export default function Signup() {
       {/* --- STEP 1: REGISTRATION FORM --- */}
       {step === 'form' && (
         <form className="contact-form" onSubmit={handleRegister}>
-          <input 
-            type="text" name="username" placeholder="Username" required 
+          <input
+            type="text" name="username" placeholder="Username" required
             value={formData.username} onChange={handleChange}
           />
-          <input 
-            type="email" name="email" placeholder="Email" required 
+          <input
+            type="email" name="email" placeholder="Email" required
             value={formData.email} onChange={handleChange}
           />
-          <input 
-            type="tel" name="phone_number" placeholder="Phone Number" required 
+          <input
+            type="tel" name="phone_number" placeholder="Phone Number" required
             value={formData.phone_number} onChange={handleChange}
           />
-          
 
-{/* Password Field */}
-<div className="mb-4"> {/* Add spacing wrapper */}
-  <input
-    type="password"
-    name="password"       // ✅ Must match the state name
-    value={formData.password} // ✅ Binds to state
-    onChange={handleChange}   // ✅ Updates state on typing
-    placeholder="Password"
-    className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:border-red-500" 
-    required
-  />
-</div>
+
+          {/* Password Field */}
+          <div className="mb-4"> {/* Add spacing wrapper */}
+            <input
+              type="password"
+              name="password"       // ✅ Must match the state name
+              value={formData.password} // ✅ Binds to state
+              onChange={handleChange}   // ✅ Updates state on typing
+              placeholder="Password"
+              className="w-full p-3 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:border-red-500"
+              required
+            />
+          </div>
           {/* Artist Toggle */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '15px 0', color: '#fff', width: '100%' }}>
-            <input 
+            <input
               type="checkbox" name="is_artist" id="artist-check"
               checked={formData.is_artist} onChange={handleChange}
-              style={{ width: '20px', height: '20px', margin: 0 }} 
+              style={{ width: '20px', height: '20px', margin: 0 }}
             />
             <label htmlFor="artist-check" style={{ cursor: 'pointer', fontWeight: 'bold' }}>
               I am a Tattoo Artist
@@ -397,16 +397,16 @@ export default function Signup() {
           {/* Conditional Artist Fields */}
           {formData.is_artist && (
             <div className="artist-fields" style={{ borderLeft: '3px solid #e63946', paddingLeft: '15px', width: '100%', marginBottom: '15px' }}>
-              <input 
-                type="text" name="shop_name" placeholder="Shop Name" 
+              <input
+                type="text" name="shop_name" placeholder="Shop Name"
                 required={formData.is_artist} value={formData.shop_name} onChange={handleChange}
               />
-              <input 
-                type="text" name="city" placeholder="City" 
+              <input
+                type="text" name="city" placeholder="City"
                 required={formData.is_artist} value={formData.city} onChange={handleChange}
               />
-              <input 
-                type="url" name="instagram_link" placeholder="Instagram Portfolio Link" 
+              <input
+                type="url" name="instagram_link" placeholder="Instagram Portfolio Link"
                 required={formData.is_artist} value={formData.instagram_link} onChange={handleChange}
               />
             </div>
@@ -421,23 +421,23 @@ export default function Signup() {
       {/* --- STEP 2: OTP FORM --- */}
       {step === 'otp' && (
         <form className="contact-form" onSubmit={handleVerifyOtp}>
-          <p style={{color: 'white'}}>Enter the 6-digit code sent to {formData.email}</p>
-          
-          <input 
-            type="text" name="otp" placeholder="XXXXXX" 
+          <p style={{ color: 'white' }}>Enter the 6-digit code sent to {formData.email}</p>
+
+          <input
+            type="text" name="otp" placeholder="XXXXXX"
             required maxLength="6"
             value={otp} onChange={(e) => setOtp(e.target.value)}
-            style={{textAlign: 'center', letterSpacing: '5px', fontSize: '1.5rem'}}
+            style={{ textAlign: 'center', letterSpacing: '5px', fontSize: '1.5rem' }}
           />
 
           <button type="submit" className="btn" disabled={isLoading}>
             {isLoading ? 'Verifying...' : 'Verify & Login'}
           </button>
 
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => setStep('form')}
-            style={{background: 'transparent', border: 'none', color: '#ccc', marginTop: '15px', cursor: 'pointer', textDecoration: 'underline'}}
+            style={{ background: 'transparent', border: 'none', color: '#ccc', marginTop: '15px', cursor: 'pointer', textDecoration: 'underline' }}
           >
             Wrong email? Go Back
           </button>
@@ -445,11 +445,11 @@ export default function Signup() {
       )}
 
       {step === 'form' && (
-        <p style={{marginTop: '20px'}}>
-          Already have an account? <Link to="/login" style={{color: '#e63946'}}>Login here</Link>
+        <p style={{ marginTop: '20px' }}>
+          Already have an account? <Link to="/login" style={{ color: '#e63946' }}>Login here</Link>
         </p>
       )}
     </div>
   );
-  
+
 }

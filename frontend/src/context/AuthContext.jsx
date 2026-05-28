@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
             // If we have both, verify the token with the backend
             if (storedUser && token) {
                 try {
-                    const response = await fetch('http://localhost:8000/api/token/verify/', {
+                    const response = await fetch('https://inkspire2.onrender.com/api/token/verify/', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ token })
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
 
         try {
             setIsRefreshing(true);
-            const response = await fetch('http://localhost:8000/api/token/refresh/', {
+            const response = await fetch('https://inkspire2.onrender.com/api/token/refresh/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ refresh })
@@ -88,12 +88,12 @@ export const AuthProvider = ({ children }) => {
     // 4. Authenticated Fetch Wrapper
     const authFetch = useCallback(async (url, options = {}) => {
         let accessToken = localStorage.getItem('access');
-        
+
         const isFormData = options.body instanceof FormData;
-        
+
         const headers = {
             ...options.headers
-        };  
+        };
 
         if (!isFormData && !headers['Content-Type']) {
             headers['Content-Type'] = 'application/json';

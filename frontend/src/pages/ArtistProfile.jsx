@@ -4,7 +4,7 @@ import { MapPin, Instagram, Calendar, Clock, User, X, Info, ChevronLeft, Chevron
 import { useAuth } from '../context/AuthContext';
 import './ArtistProfile.css';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://inkspire2.onrender.com';
 
 // Placement options matching backend
 const PLACEMENT_OPTIONS = [
@@ -60,20 +60,20 @@ const ArtistProfile = () => {
   const getCalendarDays = (monthDate) => {
     const year = monthDate.getFullYear();
     const month = monthDate.getMonth();
-    
+
     // First day of the month
     const firstDay = new Date(year, month, 1);
-    
+
     // Get day index (0 = Sunday, 1 = Monday, etc.)
     let startDay = firstDay.getDay();
     // Shift so Monday is 0, Tuesday is 1, ..., Sunday is 6
     startDay = startDay === 0 ? 6 : startDay - 1;
-    
+
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const daysInPrevMonth = new Date(year, month, 0).getDate();
-    
+
     const cells = [];
-    
+
     // Previous month padding days
     for (let i = startDay - 1; i >= 0; i--) {
       cells.push({
@@ -81,7 +81,7 @@ const ArtistProfile = () => {
         isCurrentMonth: false,
       });
     }
-    
+
     // Current month days
     for (let i = 1; i <= daysInMonth; i++) {
       cells.push({
@@ -89,7 +89,7 @@ const ArtistProfile = () => {
         isCurrentMonth: true,
       });
     }
-    
+
     // Next month padding days to fill 42 cells (6 rows * 7 days)
     const remaining = 42 - cells.length;
     for (let i = 1; i <= remaining; i++) {
@@ -98,7 +98,7 @@ const ArtistProfile = () => {
         isCurrentMonth: false,
       });
     }
-    
+
     return cells;
   };
 
@@ -132,7 +132,7 @@ const ArtistProfile = () => {
   const handleDateClick = async (dateObj, scheduleDay) => {
     const dateStr = getLocalDateString(dateObj);
     const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-    
+
     setSelectedDay(dayName);
     setBookingDate(dateStr);
     setShowModal(true);
@@ -140,7 +140,7 @@ const ArtistProfile = () => {
     setLoadingSlots(true);
     setSelectedTime(null);
     setSubmitError(null);
-    
+
     try {
       const res = await fetch(`${API_BASE_URL}/api/appointments/slots/${id}/?date=${dateStr}`);
       const data = await res.json();
@@ -357,8 +357,8 @@ const ArtistProfile = () => {
                   <Instagram size={20} /> Follow on Instagram
                 </a>
               )}
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="book-now-hero-btn"
                 onClick={() => {
                   setShowModal(true);
@@ -393,8 +393,8 @@ const ArtistProfile = () => {
         <div className="booking-cta-section">
           <h3>Ready to get inked?</h3>
           <p>Book a personalized session with {artist.username} using our custom interactive calendar.</p>
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="btn-primary cta-btn"
             onClick={() => {
               setShowModal(true);
@@ -478,27 +478,27 @@ const ArtistProfile = () => {
                       <div className="calendar-card">
                         {/* Calendar Header */}
                         <div className="calendar-header">
-                          <button 
+                          <button
                             type="button"
-                            onClick={prevMonth} 
+                            onClick={prevMonth}
                             disabled={
                               currentMonth.getFullYear() === new Date().getFullYear() &&
                               currentMonth.getMonth() === new Date().getMonth()
-                            } 
+                            }
                             className="calendar-nav-btn"
                             aria-label="Previous month"
                           >
                             <ChevronLeft size={20} />
                           </button>
                           <span className="calendar-month-title">{getMonthYearString(currentMonth)}</span>
-                          <button 
+                          <button
                             type="button"
-                            onClick={nextMonth} 
+                            onClick={nextMonth}
                             disabled={
                               currentMonth.getFullYear() === new Date().getFullYear() + 1 ||
                               (currentMonth.getFullYear() === new Date().getFullYear() &&
                                 currentMonth.getMonth() >= new Date().getMonth() + 6)
-                            } 
+                            }
                             className="calendar-nav-btn"
                             aria-label="Next month"
                           >
@@ -532,7 +532,7 @@ const ArtistProfile = () => {
                             else if (isPast) cellClass += " is-past";
                             else if (!isActive) cellClass += " is-inactive";
                             else if (isBookable) cellClass += " is-bookable";
-                            
+
                             if (isToday) cellClass += " is-today";
 
                             return (
@@ -630,7 +630,7 @@ const ArtistProfile = () => {
                             onClick={() => handleBookSlot(slot.value)}
                             className={`slot-popup-btn ${!slot.available ? 'occupied' : (bookingDate === getLocalDateString(new Date()) && isPastTime(slot.value)) ? 'occupied past' : 'available'}`}
                           >
-                             <span className="slot-time">{slot.time}</span>
+                            <span className="slot-time">{slot.time}</span>
                             {!slot.available ? (
                               <span className="slot-status">Booked</span>
                             ) : (bookingDate === getLocalDateString(new Date()) && isPastTime(slot.value)) ? (

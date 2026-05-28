@@ -8,7 +8,7 @@ const OrderHistory = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             const token = localStorage.getItem('access');
-            
+
             if (!token) {
                 toast.error("You must be logged in to view your orders.");
                 setLoading(false);
@@ -16,14 +16,14 @@ const OrderHistory = () => {
             }
 
             try {
-                const response = await fetch('http://localhost:8000/api/shop/history/', {
+                const response = await fetch('https://inkspire2.onrender.com/api/shop/history/', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
                 if (!response.ok) throw new Error("Failed to fetch orders");
-                
+
                 const data = await response.json();
                 setOrders(data);
                 setLoading(false);
@@ -42,7 +42,7 @@ const OrderHistory = () => {
     return (
         <div style={styles.pageContainer}>
             <Toaster position="bottom-right" />
-            
+
             <div style={styles.header}>
                 <h2>My Order History</h2>
                 <a href="/shop" style={styles.backButton}>← Back to Shop</a>
@@ -50,9 +50,9 @@ const OrderHistory = () => {
 
             {orders.length === 0 ? (
                 <div style={styles.emptyState}>
-                    <div style={{fontSize: '4rem', marginBottom: '10px'}}>📦</div>
+                    <div style={{ fontSize: '4rem', marginBottom: '10px' }}>📦</div>
                     <h3>No orders yet</h3>
-                    <p style={{color: '#888'}}>When you buy something, it will show up here!</p>
+                    <p style={{ color: '#888' }}>When you buy something, it will show up here!</p>
                 </div>
             ) : (
                 <div style={styles.orderList}>
@@ -60,29 +60,29 @@ const OrderHistory = () => {
                         <div key={order.id} style={styles.orderCard}>
                             <div style={styles.orderHeader}>
                                 <div>
-                                    <span style={{color: '#888', fontSize: '0.9rem'}}>Order #{order.id}</span>
-                                    <h3 style={{margin: '5px 0 0 0'}}>
+                                    <span style={{ color: '#888', fontSize: '0.9rem' }}>Order #{order.id}</span>
+                                    <h3 style={{ margin: '5px 0 0 0' }}>
                                         {new Date(order.created_at).toLocaleDateString()}
                                     </h3>
                                 </div>
-                                <div style={{textAlign: 'right'}}>
+                                <div style={{ textAlign: 'right' }}>
                                     <span style={{
-                                        ...styles.statusBadge, 
+                                        ...styles.statusBadge,
                                         backgroundColor: order.status === 'paid' ? '#10b981' : '#f59e0b'
                                     }}>
                                         {order.status.toUpperCase()}
                                     </span>
-                                    <h3 style={{margin: '5px 0 0 0'}}>${parseFloat(order.total_price).toFixed(2)}</h3>
+                                    <h3 style={{ margin: '5px 0 0 0' }}>${parseFloat(order.total_price).toFixed(2)}</h3>
                                 </div>
                             </div>
 
-                            <hr style={{border: 'none', borderTop: '1px solid #333', margin: '15px 0'}} />
+                            <hr style={{ border: 'none', borderTop: '1px solid #333', margin: '15px 0' }} />
 
                             <div style={styles.itemList}>
                                 {order.items.map((item, index) => (
                                     <div key={index} style={styles.itemRow}>
-                                        <span style={{color: '#ccc'}}>{item.quantity}x {item.product_name || "Product"}</span>
-                                        <span style={{color: '#888'}}>${parseFloat(item.price_at_purchase).toFixed(2)}</span>
+                                        <span style={{ color: '#ccc' }}>{item.quantity}x {item.product_name || "Product"}</span>
+                                        <span style={{ color: '#888' }}>${parseFloat(item.price_at_purchase).toFixed(2)}</span>
                                     </div>
                                 ))}
                             </div>

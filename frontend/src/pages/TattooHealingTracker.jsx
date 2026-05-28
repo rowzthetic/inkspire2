@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { 
-  MessageSquare, Send, User, ShieldCheck, Calendar, 
+import {
+  MessageSquare, Send, User, ShieldCheck, Calendar,
   ChevronDown, ChevronUp, Clock, Activity, Camera,
   X, Check, AlertCircle, ArrowLeft, Maximize2, Lock
 } from "lucide-react";
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "https://inkspire2.onrender.com";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -51,7 +51,7 @@ const STAGES = [
 ];
 
 const SYMPTOMS = [
-  "Redness", "Swelling", "Oozing", "Peeling", 
+  "Redness", "Swelling", "Oozing", "Peeling",
   "Itching", "Dryness", "Scabbing", "Bruising"
 ];
 
@@ -75,9 +75,9 @@ function PhotoUpload({ dayKey, photos, onAdd, onPreview, disabled }) {
       <p style={styles.sectionLabel}>📷 Photos</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 10 }}>
         {photos.map((p, i) => (
-          <div 
-            key={i} 
-            style={styles.photoThumb} 
+          <div
+            key={i}
+            style={styles.photoThumb}
             onClick={() => onPreview(p.url)}
           >
             <img src={p.url} alt="progress" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 8 }} />
@@ -190,7 +190,7 @@ export default function TattooHealingTracker() {
   const [openDay, setOpenDay] = useState(1);
   const [activeStage, setActiveStage] = useState(null);
   const [savingDay, setSavingDay] = useState(null);
-  
+
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -210,14 +210,14 @@ export default function TattooHealingTracker() {
         } else {
           setError("No appointment data found.");
         }
-        
+
         const newDayData = {};
         ALL_DAYS.forEach(d => { newDayData[d] = initDay(); });
 
         data.artist_notes.forEach((n) => {
           if (newDayData[n.day]) { newDayData[n.day].artistNote = n.note; }
         });
-        
+
         data.logs.forEach((l) => {
           if (newDayData[l.day]) {
             newDayData[l.day] = {
@@ -231,17 +231,17 @@ export default function TattooHealingTracker() {
             };
           }
         });
-        
+
         setDayData(newDayData);
-        
+
         // Auto-open current day & lockout logic
         const today = new Date();
         const apptDate = new Date(data.appointment.date);
-        
+
         // Count full days passed since appointment (1-indexed)
         const diffDays = Math.floor((today - apptDate) / (1000 * 60 * 60 * 24)) + 1;
         setCurrentHealingDay(Math.max(1, diffDays));
-        
+
         // Prioritize URL 'day' parameter over calculated 'diffDays'
         const dayFromUrl = searchParams.get("day");
         if (dayFromUrl) {
@@ -253,7 +253,7 @@ export default function TattooHealingTracker() {
         const errData = await res.json().catch(() => ({}));
         setError(errData.detail || errData.error || "Failed to load healing journey.");
       }
-    } catch (err) { 
+    } catch (err) {
       console.error(err);
       setError("An unexpected error occurred. Please refresh or try again.");
     }
@@ -278,8 +278,8 @@ export default function TattooHealingTracker() {
         if (!user) {
           const userRes = await authFetch(`${API_BASE_URL}/api/users/me/`);
           if (userRes.ok) {
-             const userData = await userRes.json();
-             setUser(userData);
+            const userData = await userRes.json();
+            setUser(userData);
           }
         }
 
@@ -386,8 +386,8 @@ export default function TattooHealingTracker() {
     if (!appointment || user?.is_artist) return;
     let logId = dayData[day].id;
     if (!logId) {
-       await saveLog(day, {});
-       logId = dayData[day].id;
+      await saveLog(day, {});
+      logId = dayData[day].id;
     }
     const formData = new FormData();
     formData.append("image", file);
@@ -430,7 +430,7 @@ export default function TattooHealingTracker() {
   if (!appointment) return (
     <div style={{ color: "#fff", padding: "100px 40px", textAlign: "center" }}>
       <div style={{ marginBottom: 20 }}>
-          <Activity size={48} color="#222" />
+        <Activity size={48} color="#222" />
       </div>
       <h2 style={{ color: "#EF9F27", fontSize: 24, fontWeight: 700 }}>No Active Healing Session</h2>
       <p style={{ color: "#888", marginTop: 10, maxWidth: 300, margin: "10px auto 30px" }}>
@@ -478,7 +478,7 @@ export default function TattooHealingTracker() {
 
       {/* ── Day List ── */}
       <div style={{ marginTop: 20 }}>
-        {ALL_DAYS.filter(d => !activeStage || (d >= STAGES.find(s=>s.id===activeStage).range[0] && d <= STAGES.find(s=>s.id===activeStage).range[1])).map(day => {
+        {ALL_DAYS.filter(d => !activeStage || (d >= STAGES.find(s => s.id === activeStage).range[0] && d <= STAGES.find(s => s.id === activeStage).range[1])).map(day => {
           const data = dayData[day];
           const isOpen = openDay === day;
           const stage = getStage(day);
@@ -487,22 +487,22 @@ export default function TattooHealingTracker() {
 
           return (
             <div key={day} id={`day-${day}`} style={{ marginBottom: 10 }}>
-              <button 
-                onClick={() => !isLocked && setOpenDay(isOpen ? null : day)} 
+              <button
+                onClick={() => !isLocked && setOpenDay(isOpen ? null : day)}
                 disabled={isLocked}
-                style={{ 
-                  ...styles.dayHeader, 
-                  borderLeftColor: isLocked ? "#222" : stage.color, 
+                style={{
+                  ...styles.dayHeader,
+                  borderLeftColor: isLocked ? "#222" : stage.color,
                   background: isOpen ? "#1a1a1a" : "#121212",
                   opacity: isLocked ? 0.3 : 1,
                   cursor: isLocked ? "not-allowed" : "pointer"
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ 
-                    ...styles.dayCircle, 
-                    borderColor: isLocked ? "#222" : (data.id ? stage.color : "#333"), 
-                    color: isLocked ? "#222" : (data.id ? stage.color : "#555") 
+                  <div style={{
+                    ...styles.dayCircle,
+                    borderColor: isLocked ? "#222" : (data.id ? stage.color : "#333"),
+                    color: isLocked ? "#222" : (data.id ? stage.color : "#555")
                   }}>
                     {isLocked ? <Lock size={12} /> : day}
                   </div>
@@ -559,11 +559,11 @@ export default function TattooHealingTracker() {
                       </div>
                     ) : (
                       <div style={styles.feedbackBubble}>
-                         {data.feedback ? (
-                           <p style={{ margin: 0 }}>{data.feedback}</p>
-                         ) : (
-                           <p style={{ margin: 0, color: "#555", fontStyle: "italic" }}>Awaiting feedback...</p>
-                         )}
+                        {data.feedback ? (
+                          <p style={{ margin: 0 }}>{data.feedback}</p>
+                        ) : (
+                          <p style={{ margin: 0, color: "#555", fontStyle: "italic" }}>Awaiting feedback...</p>
+                        )}
                       </div>
                     )}
                   </div>

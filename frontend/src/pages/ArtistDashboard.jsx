@@ -16,7 +16,7 @@ import ArtistAppointments from '../components/Dashboard/ArtistAppointments';
 import { jsPDF } from "jspdf";
 import autoTable from 'jspdf-autotable';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://inkspire2.onrender.com';
 
 const STAGES = [
   { id: 1, range: [1, 3], label: "Initial Healing", days: "Days 1–3", color: "#E24B4A", bg: "rgba(226,75,74,0.08)" },
@@ -155,19 +155,19 @@ const ArtistDashboard = () => {
 
   const auth = useAuth();
   const logoutUser = auth?.logOut || (() => window.location.href = '/login');
-const [hasCompleted, setHasCompleted] = useState(false);
-useEffect(() => {
+  const [hasCompleted, setHasCompleted] = useState(false);
+  useEffect(() => {
     const token = localStorage.getItem('access') || localStorage.getItem('token');
     fetch(`${API_BASE_URL}/api/appointments/artist/list/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      headers: { 'Authorization': `Bearer ${token}` }
     })
-    .then(r => r.ok ? r.json() : { appointments: [] })
-    .then(data => {
+      .then(r => r.ok ? r.json() : { appointments: [] })
+      .then(data => {
         const completed = (data.appointments || []).some(a => a.status === 'completed');
         setHasCompleted(completed);
-    })
-    .catch(() => setHasCompleted(false));
-}, []);
+      })
+      .catch(() => setHasCompleted(false));
+  }, []);
 
   // Sync activeTab with URL parameter
   useEffect(() => {

@@ -4,13 +4,13 @@ import './TattooAISuite.css';
 export default function TattooAISuite() {
   const [activeTab, setActiveTab] = useState('preview'); // 'preview' | 'generate' | 'stencil'
   const [prompt, setPrompt] = useState("");
-  
+
   const [skinFile, setSkinFile] = useState(null);
   const [tattooFile, setTattooFile] = useState(null);
-  
+
   const [skinPreviewUrl, setSkinPreviewUrl] = useState("");
   const [tattooPreviewUrl, setTattooPreviewUrl] = useState("");
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [resultImage, setResultImage] = useState(null);
@@ -20,7 +20,7 @@ export default function TattooAISuite() {
   const [posY, setPosY] = useState(50); // percent
   const [scale, setScale] = useState(40); // percent width
   const [rotation, setRotation] = useState(0); // degrees
-  
+
   const sandboxRef = useRef(null);
   const draggingRef = useRef(false);
 
@@ -59,7 +59,7 @@ export default function TattooAISuite() {
   const handlePointerMove = (e) => {
     if (!draggingRef.current || !sandboxRef.current) return;
     const rect = sandboxRef.current.getBoundingClientRect();
-    
+
     // Calculate new position as percentage of sandbox
     let newX = ((e.clientX - rect.left) / rect.width) * 100;
     let newY = ((e.clientY - rect.top) / rect.height) * 100;
@@ -98,7 +98,7 @@ export default function TattooAISuite() {
 
     const formData = new FormData();
     formData.append("mode", activeTab);
-    
+
     if (activeTab === 'generate') {
       formData.append("prompt", prompt);
     } else if (activeTab === 'stencil') {
@@ -106,7 +106,7 @@ export default function TattooAISuite() {
     } else {
       formData.append("skin_image", skinFile);
       formData.append("tattoo_image", tattooFile);
-      
+
       // Append strictly calculated visual placement metrics
       formData.append("x_pos", posX);
       formData.append("y_pos", posY);
@@ -115,7 +115,7 @@ export default function TattooAISuite() {
     }
 
     try {
-      const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const BASE_URL = import.meta.env.VITE_API_URL || 'https://inkspire2.onrender.com';
       const response = await fetch(`${BASE_URL}/api/tattoo-preview/`, {
         method: 'POST',
         // Optional: Include any auth tokens if needed here
@@ -165,19 +165,19 @@ export default function TattooAISuite() {
       </div>
 
       <div className="ai-tabs">
-        <button 
+        <button
           className={`ai-tab ${activeTab === 'preview' ? 'active' : ''}`}
           onClick={() => { setActiveTab('preview'); setResultImage(null); setError(null); }}
         >
           Tattoo Skin Preview
         </button>
-        <button 
+        <button
           className={`ai-tab ${activeTab === 'generate' ? 'active' : ''}`}
           onClick={() => { setActiveTab('generate'); setResultImage(null); setError(null); }}
         >
           AI Design Generator
         </button>
-        <button 
+        <button
           className={`ai-tab ${activeTab === 'stencil' ? 'active' : ''}`}
           onClick={() => { setActiveTab('stencil'); setResultImage(null); setError(null); }}
         >
@@ -206,8 +206,8 @@ export default function TattooAISuite() {
               <button className="ai-back-btn" onClick={() => setResultImage(null)}>
                 Make Adjustments
               </button>
-              <button 
-                className="ai-submit-btn" 
+              <button
+                className="ai-submit-btn"
                 style={{ width: 'auto' }}
                 onClick={async () => {
                   try {
@@ -240,16 +240,16 @@ export default function TattooAISuite() {
               <>
                 {!skinPreviewUrl || !tattooPreviewUrl ? (
                   <div className="ai-upload-grid">
-                    <div 
+                    <div
                       className="ai-dropzone"
                       onClick={() => skinInputRef.current.click()}
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, setSkinFile, setSkinPreviewUrl)}
                     >
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        ref={skinInputRef} 
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={skinInputRef}
                         onChange={(e) => handleFileChange(e, setSkinFile, setSkinPreviewUrl)}
                       />
                       {skinPreviewUrl ? (
@@ -262,16 +262,16 @@ export default function TattooAISuite() {
                       )}
                     </div>
 
-                    <div 
+                    <div
                       className="ai-dropzone"
                       onClick={() => tattooInputRef.current.click()}
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, setTattooFile, setTattooPreviewUrl)}
                     >
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        ref={tattooInputRef} 
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={tattooInputRef}
                         onChange={(e) => handleFileChange(e, setTattooFile, setTattooPreviewUrl)}
                       />
                       {tattooPreviewUrl ? (
@@ -287,12 +287,12 @@ export default function TattooAISuite() {
                 ) : (
                   <div className="ai-sandbox-container">
                     <h3 style={{ marginBottom: '15px', textAlign: 'center' }}>Drag to Position & Adjust Scale</h3>
-                    
+
                     <div className="ai-sandbox" ref={sandboxRef} style={{ touchAction: 'none' }}>
                       <img src={skinPreviewUrl} alt="Skin Base" className="ai-sandbox-bg" />
-                      <img 
-                        src={tattooPreviewUrl} 
-                        alt="Draggable Tattoo" 
+                      <img
+                        src={tattooPreviewUrl}
+                        alt="Draggable Tattoo"
                         className="ai-sandbox-draggable"
                         onPointerDown={handlePointerDown}
                         onPointerMove={handlePointerMove}
@@ -317,7 +317,7 @@ export default function TattooAISuite() {
                         <input type="range" min="-180" max="180" value={rotation} onChange={(e) => setRotation(e.target.value)} />
                       </div>
                     </div>
-                    
+
                     <button className="ai-back-btn" onClick={() => { setSkinPreviewUrl(null); setSkinFile(null); setTattooPreviewUrl(null); setTattooFile(null); }} style={{ marginTop: '10px', display: 'block', margin: '15px auto 0 auto' }}>
                       Clear & Upload New Images
                     </button>
@@ -325,19 +325,19 @@ export default function TattooAISuite() {
                 )}
               </>
             )}
-            
+
             {activeTab === 'stencil' && (
               <div className="ai-upload-grid" style={{ gridTemplateColumns: '1fr', maxWidth: '500px', margin: '0 auto' }}>
-                <div 
+                <div
                   className="ai-dropzone"
                   onClick={() => tattooInputRef.current.click()}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, setTattooFile, setTattooPreviewUrl)}
                 >
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    ref={tattooInputRef} 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={tattooInputRef}
                     onChange={(e) => handleFileChange(e, setTattooFile, setTattooPreviewUrl)}
                   />
                   {tattooPreviewUrl ? (
@@ -355,8 +355,8 @@ export default function TattooAISuite() {
 
             {activeTab === 'generate' && (
               <div className="ai-input-group">
-                <textarea 
-                  className="ai-input" 
+                <textarea
+                  className="ai-input"
                   rows="4"
                   placeholder="Describe the tattoo you want to create (e.g. A neo-traditional owl with glowing amber eyes)"
                   value={prompt}
@@ -365,8 +365,8 @@ export default function TattooAISuite() {
               </div>
             )}
 
-            <button 
-              className="ai-submit-btn" 
+            <button
+              className="ai-submit-btn"
               onClick={handleSubmit}
               disabled={loading || (activeTab === 'preview' && (!skinFile || !tattooFile)) || (activeTab === 'generate' && !prompt.trim()) || (activeTab === 'stencil' && !tattooFile)}
             >

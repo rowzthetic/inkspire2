@@ -17,7 +17,7 @@ RUN npm ci
 COPY frontend/ .
 
 # Define build arguments for Vite
-ARG VITE_API_URL=http://localhost:8000
+ARG VITE_API_URL=https://inkspire2.onrender.com
 ARG VITE_GOOGLE_AI_KEY=""
 ARG VITE_OPENROUTER_API_KEY=""
 ARG VITE_STRIPE_PUBLISHABLE_KEY=""
@@ -93,7 +93,7 @@ EXPOSE 8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl http://localhost:8000/api/ || exit 1
+    CMD curl https://inkspire2.onrender.com/api/ || exit 1
 
 # Run migrations and start Gunicorn
 CMD ["sh", "-c", ".venv/bin/python manage.py migrate && .venv/bin/gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120 --access-logfile - --error-logfile -"]

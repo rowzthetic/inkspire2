@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import toast, { Toaster } from 'react-hot-toast'; 
+import toast, { Toaster } from 'react-hot-toast';
 
 const Shop = () => {
     // State Management
@@ -18,19 +18,19 @@ const Shop = () => {
         const fetchData = async () => {
             try {
                 // Fetch Products
-                const pRes = await fetch('http://localhost:8000/api/shop/products/');
+                const pRes = await fetch('https://inkspire2.onrender.com/api/shop/products/');
                 const pData = await pRes.json();
                 setProducts(pData);
-                
+
                 // Fetch Categories
-                const cRes = await fetch('http://localhost:8000/api/shop/categories/');
+                const cRes = await fetch('https://inkspire2.onrender.com/api/shop/categories/');
                 const cData = await cRes.json();
                 setCategories(cData);
-                
+
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching shop data:', error);
-                toast.error("Failed to load shop items."); 
+                toast.error("Failed to load shop items.");
                 setLoading(false);
             }
         };
@@ -40,31 +40,31 @@ const Shop = () => {
     // Handle Stripe Redirects
     useEffect(() => {
         const query = new URLSearchParams(window.location.search);
-        
+
         if (query.get("payment") === "success") {
             const orderId = query.get("order_id");
             const token = localStorage.getItem('access');
 
             if (orderId && token) {
                 // Manually trigger payment confirmation so the order status updates immediately
-                fetch(`http://localhost:8000/api/shop/checkout/${orderId}/confirm/`, {
+                fetch(`https://inkspire2.onrender.com/api/shop/checkout/${orderId}/confirm/`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
-                .then(() => {
-                    toast.success("Payment successful! Your order is now being processed.", { duration: 6000 });
-                })
-                .catch(err => console.error("Confirmation error:", err));
+                    .then(() => {
+                        toast.success("Payment successful! Your order is now being processed.", { duration: 6000 });
+                    })
+                    .catch(err => console.error("Confirmation error:", err));
             } else {
                 toast.success("Payment successful! Thank you for your order.", { duration: 5000 });
             }
 
-            setCart([]); 
+            setCart([]);
             window.history.replaceState(null, '', window.location.pathname);
         }
-        
+
         if (query.get("payment") === "cancelled") {
-            toast.error("Payment was cancelled. Your items are still in your cart.", { duration: 5000 }); 
+            toast.error("Payment was cancelled. Your items are still in your cart.", { duration: 5000 });
             window.history.replaceState(null, '', window.location.pathname);
         }
     }, []);
@@ -89,7 +89,7 @@ const Shop = () => {
             const existingItem = prevCart.find((item) => item.product.id === product.id);
             if (existingItem) {
                 if (existingItem.quantity >= product.stock_quantity) {
-                    toast.error(`Sorry, only ${product.stock_quantity} available!`); 
+                    toast.error(`Sorry, only ${product.stock_quantity} available!`);
                     return prevCart;
                 }
                 return prevCart.map((item) =>
@@ -99,8 +99,8 @@ const Shop = () => {
             }
             return [...prevCart, { product, quantity: 1 }];
         });
-        
-        toast.success(`${product.name} added to cart!`); 
+
+        toast.success(`${product.name} added to cart!`);
     };
 
     const removeFromCart = (productId) => {
@@ -115,22 +115,22 @@ const Shop = () => {
 
     // --- Stripe Checkout ---
     const handleCheckout = async () => {
-        const token = localStorage.getItem('access'); 
-        
+        const token = localStorage.getItem('access');
+
         if (!token) {
-            toast.error("You must be logged in to check out!"); 
+            toast.error("You must be logged in to check out!");
             return;
         }
 
-        const toastId = toast.loading("Connecting to secure checkout..."); 
+        const toastId = toast.loading("Connecting to secure checkout...");
 
         const orderData = {
             items: cart.map(item => ({ product_id: item.product.id, quantity: item.quantity })),
-            shipping_address: "123 User Entered Address" 
+            shipping_address: "123 User Entered Address"
         };
 
         try {
-            const orderRes = await fetch('http://localhost:8000/api/shop/create-order/', {
+            const orderRes = await fetch('https://inkspire2.onrender.com/api/shop/create-order/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(orderData)
@@ -139,20 +139,20 @@ const Shop = () => {
             const orderResult = await orderRes.json();
             if (!orderRes.ok) throw new Error(orderResult.error || "Failed to create order");
 
-            const stripeRes = await fetch(`http://localhost:8000/api/shop/checkout/${orderResult.order_id}/`, {
+            const stripeRes = await fetch(`https://inkspire2.onrender.com/api/shop/checkout/${orderResult.order_id}/`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
             const stripeResult = await stripeRes.json();
             if (stripeRes.ok && stripeResult.url) {
-                toast.dismiss(toastId); 
-                window.location.href = stripeResult.url; 
+                toast.dismiss(toastId);
+                window.location.href = stripeResult.url;
             } else {
                 throw new Error("Stripe checkout failed to initialize.");
             }
         } catch (error) {
-            toast.error(error.message, { id: toastId }); 
+            toast.error(error.message, { id: toastId });
         }
     };
 
@@ -162,11 +162,11 @@ const Shop = () => {
         <div style={styles.pageContainer}>
             <Toaster position="bottom-right" reverseOrder={false} />
 
-           {/* Shop Header */}
+            {/* Shop Header */}
             <div style={styles.header}>
                 <h2>Inkspire Aftercare & Merch</h2>
                 <div>
-                    <a href="/orders" className="gold-btn" style={{marginRight: '15px', textDecoration: 'none', display: 'inline-block'}}>
+                    <a href="/orders" className="gold-btn" style={{ marginRight: '15px', textDecoration: 'none', display: 'inline-block' }}>
                         📦 My Orders
                     </a>
                     <button onClick={() => setIsCartOpen(!isCartOpen)} className="gold-btn">
@@ -177,14 +177,14 @@ const Shop = () => {
 
             {/* Toolbar */}
             <div style={styles.toolbar}>
-                <input 
-                    type="text" 
-                    placeholder="Search products..." 
+                <input
+                    type="text"
+                    placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     style={styles.searchInput}
                 />
-                
+
                 <div style={styles.filterGroup}>
                     <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} style={styles.selectInput}>
                         <option value="All">All Categories</option>
@@ -200,8 +200,8 @@ const Shop = () => {
 
             {/* Product Grid */}
             <div style={styles.grid}>
-                {displayedProducts.length === 0 ? <p style={{color: '#f0ebe0'}}>No products found.</p> : null}
-                
+                {displayedProducts.length === 0 ? <p style={{ color: '#f0ebe0' }}>No products found.</p> : null}
+
                 {displayedProducts.map((product) => (
                     <div key={product.id} style={styles.card}>
                         <div style={{ height: '200px', width: '100%', overflow: 'hidden', borderRadius: '4px', position: 'relative' }}>
@@ -215,8 +215,8 @@ const Shop = () => {
                                 <div style={styles.imagePlaceholder}>📷</div>
                             )}
                         </div>
-                        
-                        <div style={{marginTop: '10px'}}>
+
+                        <div style={{ marginTop: '10px' }}>
                             {product.category_details && (
                                 <span style={styles.categoryTag}>
                                     {product.category_details.name.toUpperCase()}
@@ -224,21 +224,21 @@ const Shop = () => {
                             )}
                             <h3 style={{ margin: '5px 0' }}>{product.name}</h3>
                         </div>
-                        
+
                         <p style={{ color: '#ccc', flexGrow: 1, fontSize: '0.9rem' }}>{product.description}</p>
-                        
+
                         <div style={styles.cardFooter}>
                             <strong>{product.price ? `$${parseFloat(product.price).toFixed(2)}` : 'N/A'}</strong>
                             <span style={{ fontSize: '0.9rem', color: product.stock_quantity > 0 ? 'green' : 'red' }}>
                                 {product.stock_quantity > 0 ? 'In Stock' : 'Out of Stock'}
                             </span>
                         </div>
-                        
-                        <button 
-                            onClick={() => addToCart(product)} 
+
+                        <button
+                            onClick={() => addToCart(product)}
                             disabled={product.stock_quantity <= 0}
                             className="gold-btn"
-                            style={{marginTop: 'auto'}}
+                            style={{ marginTop: 'auto' }}
                         >
                             {product.stock_quantity > 0 ? 'Add to Cart' : 'Sold Out'}
                         </button>
@@ -250,35 +250,35 @@ const Shop = () => {
             {isCartOpen && (
                 <div style={styles.cartPanel}>
                     <div style={styles.cartHeader}>
-                        <h3 style={{margin: 0, fontSize: '1.4rem'}}>Your Cart</h3>
+                        <h3 style={{ margin: 0, fontSize: '1.4rem' }}>Your Cart</h3>
                         <button onClick={() => setIsCartOpen(false)} style={styles.closeBtn}>✖</button>
                     </div>
-                    
+
                     {cart.length === 0 ? (
-                        <div style={{textAlign: 'center', marginTop: '50px', color: '#888'}}>
-                            <div style={{fontSize: '3rem', marginBottom: '10px'}}>🛒</div>
+                        <div style={{ textAlign: 'center', marginTop: '50px', color: '#888' }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🛒</div>
                             <p>Your cart is empty.</p>
                         </div>
                     ) : (
                         <div style={styles.cartItems}>
                             {cart.map((item) => (
                                 <div key={item.product.id} style={styles.cartItemRow}>
-                                    
+
                                     {/* Mini Thumbnail */}
                                     <div style={styles.cartItemImage}>
                                         {item.product.image ? (
                                             <img src={item.product.image} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         ) : (
-                                            <span style={{fontSize: '1.5rem'}}>📷</span>
+                                            <span style={{ fontSize: '1.5rem' }}>📷</span>
                                         )}
                                     </div>
 
                                     {/* Item Details */}
                                     <div style={{ flexGrow: 1 }}>
-                                        <strong style={{display: 'block', fontSize: '1.05rem', marginBottom: '4px'}}>{item.product.name}</strong>
-                                        <div style={{color: '#666', fontSize: '0.9rem'}}>
-                                            Qty: {item.quantity} <span style={{margin: '0 5px'}}>×</span> 
-                                            <strong style={{color: '#000'}}>{item.product.price ? `$${parseFloat(item.product.price).toFixed(2)}` : 'N/A'}</strong>
+                                        <strong style={{ display: 'block', fontSize: '1.05rem', marginBottom: '4px' }}>{item.product.name}</strong>
+                                        <div style={{ color: '#666', fontSize: '0.9rem' }}>
+                                            Qty: {item.quantity} <span style={{ margin: '0 5px' }}>×</span>
+                                            <strong style={{ color: '#000' }}>{item.product.price ? `$${parseFloat(item.product.price).toFixed(2)}` : 'N/A'}</strong>
                                         </div>
                                     </div>
 
@@ -294,10 +294,10 @@ const Shop = () => {
                     {cart.length > 0 && (
                         <div style={styles.checkoutSection}>
                             <div style={styles.totalRow}>
-                                <span style={{color: '#f0ebe0', fontWeight: '500'}}>Subtotal</span>
-                                <strong style={{fontSize: '1.3rem'}}>${cartTotal.toFixed(2)}</strong>
+                                <span style={{ color: '#f0ebe0', fontWeight: '500' }}>Subtotal</span>
+                                <strong style={{ fontSize: '1.3rem' }}>${cartTotal.toFixed(2)}</strong>
                             </div>
-                            <p style={{fontSize: '0.8rem', color: '#888', textAlign: 'center', marginBottom: '15px', marginTop: '-5px'}}>
+                            <p style={{ fontSize: '0.8rem', color: '#888', textAlign: 'center', marginBottom: '15px', marginTop: '-5px' }}>
                                 Shipping and taxes calculated at checkout.
                             </p>
                             <button onClick={handleCheckout} className="gold-btn-solid">
@@ -329,18 +329,18 @@ const styles = {
     cardFooter: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '15px 0' },
     addButton: { padding: '12px', backgroundColor: 'transparent', color: '#D4AF37', border: '1px solid #D4AF37', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem', transition: 'all 0.3s ease' },
     disabledButton: { padding: '12px', backgroundColor: '#111', color: '#555', border: '1px solid #333', borderRadius: '4px', cursor: 'not-allowed', fontWeight: 'bold', fontSize: '1rem' },
-    
+
     //  UPGRADED CART PANEL STYLES 
     cartPanel: { color: '#f0ebe0', position: 'fixed', top: '0', right: '0', width: '380px', height: '100%', backgroundColor: '#0a0a0b', borderLeft: '1px solid #222', boxShadow: '-5px 0 25px rgba(0,0,0,0.8)', padding: '25px', zIndex: 1000, display: 'flex', flexDirection: 'column' },
     cartHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #222', paddingBottom: '15px', marginBottom: '20px' },
     closeBtn: { background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#D4AF37', transition: 'color 0.2s' },
     cartItems: { flexGrow: 1, overflowY: 'auto', paddingRight: '5px' },
-    
+
     // Beautiful item bubbles!
     cartItemRow: { display: 'flex', alignItems: 'center', marginBottom: '15px', backgroundColor: 'rgba(17, 17, 18, 0.8)', padding: '12px', borderRadius: '10px', border: '1px solid #222' },
     cartItemImage: { width: '60px', height: '60px', backgroundColor: '#222', borderRadius: '6px', overflow: 'hidden', marginRight: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
     removeBtn: { backgroundColor: 'transparent', color: '#ef4444', border: 'none', padding: '5px', fontSize: '1.2rem', cursor: 'pointer', opacity: '0.8', transition: 'opacity 0.2s' },
-    
+
     // Sleek checkout summary box!
     checkoutSection: { marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #222', backgroundColor: 'rgba(17, 17, 18, 0.5)', padding: '20px', borderRadius: '12px', border: '1px solid #222' },
     totalRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '1.2rem', marginBottom: '10px', color: '#D4AF37' },

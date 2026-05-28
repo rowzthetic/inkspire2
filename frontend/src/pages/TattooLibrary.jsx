@@ -166,20 +166,34 @@ const BODY_PARTS = [
 ];
 
 const AI_RESPONSES = [
-  { keywords: ["travel", "journey", "adventure", "wanderlust", "explore"],
-    response: "Your wandering spirit speaks clearly. I'd recommend the **Compass** — sailors carried it as a talisman for safe return, and it promises you'll always find your way home. Pair it with the **Anchor** to balance freedom with the people and places that ground you." },
-  { keywords: ["loss", "grief", "death", "someone", "passed", "gone", "memorial"],
-    response: "Grief is the price of deep love. The **Phoenix** rising from ash speaks to surviving what seemed unsurvivable. For something quieter, the **Moon** — its cycles mirror our own: darkness always gives way to returning light." },
-  { keywords: ["strength", "strong", "overcome", "fight", "battle", "hard", "difficult"],
-    response: "You've been through fire. The **Lion** carries the courage of someone who has faced their darkness and didn't look away. If your struggle involved inner transformation, the **Lotus** rising from murky water tells that story with breathtaking elegance." },
-  { keywords: ["love", "heart", "relationship", "partner", "together", "bond"],
-    response: "Love leaves marks. The **Rose** in American Traditional style captures beauty inseparable from pain — the thorns matter as much as the bloom. For something deeper, the **Anchor** declares: *this is what holds me.*" },
-  { keywords: ["new", "start", "begin", "fresh", "change", "transform", "chapter"],
-    response: "New chapters deserve permanent marks. The **Butterfly** is pure transformation — proof that total change is not only possible, it's beautiful. Or the **Phoenix**, for those whose new beginning was forged through something that had to end first." },
-  { keywords: ["wisdom", "knowledge", "learn", "grow", "understand", "insight"],
-    response: "The pursuit of wisdom is its own kind of courage. The **Owl** sees what others cannot — keeper of hidden knowledge across every culture that has ever looked up at the night sky. The **Dragon** (Japanese Ryū) adds depth: wisdom not as passive knowing, but as earned power." },
-  { keywords: ["protect", "family", "home", "safe", "guard", "belong"],
-    response: "What you protect defines you. The **Anchor** is tattooed by those who know exactly what — or who — keeps them steady. The **Dragon** as a Japanese guardian is a profound choice: it does not destroy, it watches over." },
+  {
+    keywords: ["travel", "journey", "adventure", "wanderlust", "explore"],
+    response: "Your wandering spirit speaks clearly. I'd recommend the **Compass** — sailors carried it as a talisman for safe return, and it promises you'll always find your way home. Pair it with the **Anchor** to balance freedom with the people and places that ground you."
+  },
+  {
+    keywords: ["loss", "grief", "death", "someone", "passed", "gone", "memorial"],
+    response: "Grief is the price of deep love. The **Phoenix** rising from ash speaks to surviving what seemed unsurvivable. For something quieter, the **Moon** — its cycles mirror our own: darkness always gives way to returning light."
+  },
+  {
+    keywords: ["strength", "strong", "overcome", "fight", "battle", "hard", "difficult"],
+    response: "You've been through fire. The **Lion** carries the courage of someone who has faced their darkness and didn't look away. If your struggle involved inner transformation, the **Lotus** rising from murky water tells that story with breathtaking elegance."
+  },
+  {
+    keywords: ["love", "heart", "relationship", "partner", "together", "bond"],
+    response: "Love leaves marks. The **Rose** in American Traditional style captures beauty inseparable from pain — the thorns matter as much as the bloom. For something deeper, the **Anchor** declares: *this is what holds me.*"
+  },
+  {
+    keywords: ["new", "start", "begin", "fresh", "change", "transform", "chapter"],
+    response: "New chapters deserve permanent marks. The **Butterfly** is pure transformation — proof that total change is not only possible, it's beautiful. Or the **Phoenix**, for those whose new beginning was forged through something that had to end first."
+  },
+  {
+    keywords: ["wisdom", "knowledge", "learn", "grow", "understand", "insight"],
+    response: "The pursuit of wisdom is its own kind of courage. The **Owl** sees what others cannot — keeper of hidden knowledge across every culture that has ever looked up at the night sky. The **Dragon** (Japanese Ryū) adds depth: wisdom not as passive knowing, but as earned power."
+  },
+  {
+    keywords: ["protect", "family", "home", "safe", "guard", "belong"],
+    response: "What you protect defines you. The **Anchor** is tattooed by those who know exactly what — or who — keeps them steady. The **Dragon** as a Japanese guardian is a profound choice: it does not destroy, it watches over."
+  },
 ];
 
 const DEFAULT_AI = "I see your story in the symbols you're drawn to. Tell me more — describe a journey you've taken, a person you've lost, a strength you've found, or a transformation you've lived through. The right symbol is already somewhere in your story.";
@@ -195,9 +209,11 @@ const CultureBadge = ({ culture }) => {
   };
   const c = colors[culture] || { bg: "rgba(255,255,255,0.05)", border: "#444", text: "#aaa" };
   return (
-    <span style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text,
+    <span style={{
+      background: c.bg, border: `1px solid ${c.border}`, color: c.text,
       fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20,
-      letterSpacing: "0.05em", textTransform: "uppercase" }}>
+      letterSpacing: "0.05em", textTransform: "uppercase"
+    }}>
       {culture}
     </span>
   );
@@ -215,14 +231,18 @@ const SymbolCard = ({ symbol, onClick }) => (
     onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.borderColor = "#2a2a2a"; e.currentTarget.style.boxShadow = "none"; }}
   >
     {/* Emoji hero */}
-    <div style={{ height: 120, display: "flex", alignItems: "center", justifyContent: "center",
+    <div style={{
+      height: 120, display: "flex", alignItems: "center", justifyContent: "center",
       background: `radial-gradient(circle at 50% 60%, ${symbol.color}18 0%, transparent 70%)`,
-      fontSize: 56, position: "relative" }}>
+      fontSize: 56, position: "relative"
+    }}>
       {symbol.emoji}
       {symbol.sensitive && (
-        <div style={{ position: "absolute", top: 10, right: 10,
+        <div style={{
+          position: "absolute", top: 10, right: 10,
           background: "rgba(230,126,34,0.15)", border: "1px solid #e67e22",
-          borderRadius: 6, padding: "2px 6px", display: "flex", alignItems: "center", gap: 4 }}>
+          borderRadius: 6, padding: "2px 6px", display: "flex", alignItems: "center", gap: 4
+        }}>
           <AlertTriangle size={10} color="#e67e22" />
           <span style={{ fontSize: 9, color: "#e67e22", fontWeight: 700 }}>CULTURAL</span>
         </div>
@@ -231,15 +251,19 @@ const SymbolCard = ({ symbol, onClick }) => (
     {/* Info */}
     <div style={{ padding: "14px 16px 16px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: "#f0ebe0",
-          fontFamily: "'Georgia', serif", letterSpacing: "-0.3px" }}>{symbol.name}</h3>
+        <h3 style={{
+          margin: 0, fontSize: 18, fontWeight: 800, color: "#f0ebe0",
+          fontFamily: "'Georgia', serif", letterSpacing: "-0.3px"
+        }}>{symbol.name}</h3>
         <ChevronRight size={16} color="#555" />
       </div>
       <CultureBadge culture={symbol.culture} />
       <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 4 }}>
         {symbol.tags.slice(0, 3).map(t => (
-          <span key={t} style={{ fontSize: 10, background: "rgba(255,255,255,0.04)",
-            border: "1px solid #2a2a2a", color: "#666", padding: "1px 7px", borderRadius: 10 }}>
+          <span key={t} style={{
+            fontSize: 10, background: "rgba(255,255,255,0.04)",
+            border: "1px solid #2a2a2a", color: "#666", padding: "1px 7px", borderRadius: 10
+          }}>
             {t}
           </span>
         ))}
@@ -251,9 +275,11 @@ const SymbolCard = ({ symbol, onClick }) => (
 const Modal = ({ symbol, onClose, onBook }) => {
   if (!symbol) return null;
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)",
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)",
       display: "flex", alignItems: "center", justifyContent: "center",
-      zIndex: 1000, padding: 20, backdropFilter: "blur(8px)" }}>
+      zIndex: 1000, padding: 20, backdropFilter: "blur(8px)"
+    }}>
       <div onClick={e => e.stopPropagation()} style={{
         background: "#111", border: `1px solid ${symbol.color}44`,
         borderRadius: 20, maxWidth: 780, width: "100%", maxHeight: "90vh",
@@ -261,16 +287,22 @@ const Modal = ({ symbol, onClose, onBook }) => {
         boxShadow: `0 40px 120px ${symbol.color}22`,
       }}>
         {/* Left: Visual */}
-        <div style={{ background: `radial-gradient(circle at 50% 50%, ${symbol.color}20 0%, #0a0a0a 70%)`,
+        <div style={{
+          background: `radial-gradient(circle at 50% 50%, ${symbol.color}20 0%, #0a0a0a 70%)`,
           display: "flex", flexDirection: "column", alignItems: "center",
-          justifyContent: "center", padding: 40, borderRight: "1px solid #1e1e1e", gap: 16 }}>
+          justifyContent: "center", padding: 40, borderRight: "1px solid #1e1e1e", gap: 16
+        }}>
           <div style={{ fontSize: 96 }}>{symbol.emoji}</div>
-          <h2 style={{ margin: 0, fontSize: 32, fontWeight: 900, color: "#f0ebe0",
-            fontFamily: "'Georgia', serif", textAlign: "center" }}>{symbol.name}</h2>
+          <h2 style={{
+            margin: 0, fontSize: 32, fontWeight: 900, color: "#f0ebe0",
+            fontFamily: "'Georgia', serif", textAlign: "center"
+          }}>{symbol.name}</h2>
           <CultureBadge culture={symbol.culture} />
           {symbol.sensitive && (
-            <div style={{ background: "rgba(230,126,34,0.1)", border: "1px solid #e67e2244",
-              borderRadius: 10, padding: "10px 14px", display: "flex", gap: 8, alignItems: "flex-start" }}>
+            <div style={{
+              background: "rgba(230,126,34,0.1)", border: "1px solid #e67e2244",
+              borderRadius: 10, padding: "10px 14px", display: "flex", gap: 8, alignItems: "flex-start"
+            }}>
               <AlertTriangle size={14} color="#e67e22" style={{ flexShrink: 0, marginTop: 1 }} />
               <p style={{ margin: 0, fontSize: 11, color: "#e67e22", lineHeight: 1.5 }}>
                 This symbol carries deep cultural significance. Please research its heritage before wearing it.
@@ -281,8 +313,10 @@ const Modal = ({ symbol, onClose, onBook }) => {
 
         {/* Right: Details */}
         <div style={{ padding: 36 }}>
-          <button onClick={onClose} style={{ float: "right", background: "transparent",
-            border: "none", color: "#555", cursor: "pointer", padding: 4 }}>
+          <button onClick={onClose} style={{
+            float: "right", background: "transparent",
+            border: "none", color: "#555", cursor: "pointer", padding: 4
+          }}>
             <X size={20} />
           </button>
 
@@ -293,8 +327,10 @@ const Modal = ({ symbol, onClose, onBook }) => {
               { label: "Best Placement", text: symbol.bestPlacement, icon: "📍" },
             ].map(({ label, text, icon }) => (
               <div key={label}>
-                <p style={{ margin: "0 0 6px", fontSize: 11, fontWeight: 700, color: symbol.color,
-                  textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                <p style={{
+                  margin: "0 0 6px", fontSize: 11, fontWeight: 700, color: symbol.color,
+                  textTransform: "uppercase", letterSpacing: "0.08em"
+                }}>
                   {icon} {label}
                 </p>
                 <p style={{ margin: 0, fontSize: 14, color: "#b0a89a", lineHeight: 1.7 }}>{text}</p>
@@ -303,13 +339,17 @@ const Modal = ({ symbol, onClose, onBook }) => {
 
             {/* Tags */}
             <div>
-              <p style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 700, color: "#555",
-                textTransform: "uppercase", letterSpacing: "0.08em" }}>Themes</p>
+              <p style={{
+                margin: "0 0 8px", fontSize: 11, fontWeight: 700, color: "#555",
+                textTransform: "uppercase", letterSpacing: "0.08em"
+              }}>Themes</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {symbol.tags.map(t => (
-                  <span key={t} style={{ fontSize: 11, background: `${symbol.color}15`,
+                  <span key={t} style={{
+                    fontSize: 11, background: `${symbol.color}15`,
                     border: `1px solid ${symbol.color}33`, color: symbol.color,
-                    padding: "3px 10px", borderRadius: 20 }}>
+                    padding: "3px 10px", borderRadius: 20
+                  }}>
                     {t}
                   </span>
                 ))}
@@ -341,8 +381,10 @@ const BodyMap = ({ activeBodyPart, onSelect }) => {
   return (
     <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: 16, padding: 20 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#555",
-          textTransform: "uppercase", letterSpacing: "0.08em" }}>
+        <p style={{
+          margin: 0, fontSize: 12, fontWeight: 700, color: "#555",
+          textTransform: "uppercase", letterSpacing: "0.08em"
+        }}>
           <MapPin size={12} style={{ marginRight: 4, verticalAlign: "middle" }} />
           Placement Map
         </p>
@@ -406,23 +448,25 @@ const BodyMap = ({ activeBodyPart, onSelect }) => {
 
       {activeBodyPart && (
         <div style={{ marginTop: 12, textAlign: "center" }}>
-          <span style={{ fontSize: 11, color: "#C9A84C",
+          <span style={{
+            fontSize: 11, color: "#C9A84C",
             background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)",
-            padding: "4px 12px", borderRadius: 20 }}>
+            padding: "4px 12px", borderRadius: 20
+          }}>
             Filtering: {BODY_PARTS.find(p => p.id === activeBodyPart)?.label}
           </span>
-          <button onClick={() => onSelect(null)} 
-style={{
-  display: "flex", 
-  alignItems: "center", 
-  gap: 4, 
-  margin: "8px auto 0", 
-  background: "transparent",
-  border: "none", 
-  color: "#555", 
-  cursor: "pointer", 
-  fontSize: 11
-}}>
+          <button onClick={() => onSelect(null)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              margin: "8px auto 0",
+              background: "transparent",
+              border: "none",
+              color: "#555",
+              cursor: "pointer",
+              fontSize: 11
+            }}>
             <RotateCcw size={10} /> Clear
           </button>
         </div>
@@ -442,32 +486,32 @@ const AIConsultant = () => {
 
   const handleSearch = async () => {
     if (!input.trim()) return;
-    
+
     setLoading(true);
     setHasSearched(true);
     setResult(null);
 
     try {
-        const response = await authFetch('http://localhost:8000/api/library-search/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: input.trim() })
-        });
-        
-        if (!response.ok) throw new Error("Failed to get response");
-        const data = await response.json();
-        setResult(data);
+      const response = await authFetch('https://inkspire2.onrender.com/api/library-search/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: input.trim() })
+      });
+
+      if (!response.ok) throw new Error("Failed to get response");
+      const data = await response.json();
+      setResult(data);
     } catch (err) {
-        setResult({ error: "Connection error. Ensure the Inkspire AI service is running." });
+      setResult({ error: "Connection error. Ensure the Inkspire AI service is running." });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
   const clearSearch = () => {
-      setInput("");
-      setResult(null);
-      setHasSearched(false);
+    setInput("");
+    setResult(null);
+    setHasSearched(false);
   }
 
   return (
@@ -476,7 +520,7 @@ const AIConsultant = () => {
       display: "flex", flexDirection: "column", padding: "24px",
       minHeight: hasSearched ? "500px" : "300px", transition: "all 0.5s ease"
     }}>
-      
+
       {/* Search Header Container */}
       <div style={{
         display: "flex", flexDirection: "column", alignItems: "center",
@@ -484,95 +528,95 @@ const AIConsultant = () => {
         flex: hasSearched ? 0 : 1, transition: "all 0.5s ease",
         marginBottom: hasSearched ? "24px" : "0"
       }}>
-          {!hasSearched && (
-             <div style={{ textAlign: "center", marginBottom: "28px" }}>
-                 <p style={{ margin: 0, fontSize: 13, color: "#C9A84C", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.2em", fontFamily: "system-ui" }}>Inkspire AI</p>
-                 <h3 style={{ margin: "8px 0 0", color: "#f0ebe0", fontSize: 26, fontWeight: 'normal', fontFamily: "'Georgia', serif" }}>Symbolism Search</h3>
-             </div>
-          )}
-
-          {/* Elegant Search Input */}
-          <div style={{ 
-               position: "relative", width: "100%",
-               transition: "all 0.3s ease"
-          }}>
-              <Sparkles size={18} color="#C9A84C" style={{ position: "absolute", left: 18, top: "50%", transform: "translateY(-50%)" }} />
-              <input
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleSearch()}
-                placeholder="Search mysteries (e.g. 'Medusa tattoo')"
-                readOnly={loading}
-                style={{ 
-                   width: "100%", background: "#0a0a0b", 
-                   border: "1px solid #C9A84C44",
-                   borderRadius: 30, padding: "16px 44px 16px 48px", color: "#c8bfb0", 
-                   fontSize: 15, outline: "none", boxSizing: "border-box",
-                   fontFamily: "system-ui",
-                   boxShadow: "0 4px 20px rgba(0,0,0,0.4)"
-                }}
-              />
-              {input && !loading && (
-                 <button onClick={clearSearch} style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "#555" }}>
-                     <X size={16} />
-                 </button>
-              )}
+        {!hasSearched && (
+          <div style={{ textAlign: "center", marginBottom: "28px" }}>
+            <p style={{ margin: 0, fontSize: 13, color: "#C9A84C", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.2em", fontFamily: "system-ui" }}>Inkspire AI</p>
+            <h3 style={{ margin: "8px 0 0", color: "#f0ebe0", fontSize: 26, fontWeight: 'normal', fontFamily: "'Georgia', serif" }}>Symbolism Search</h3>
           </div>
+        )}
+
+        {/* Elegant Search Input */}
+        <div style={{
+          position: "relative", width: "100%",
+          transition: "all 0.3s ease"
+        }}>
+          <Sparkles size={18} color="#C9A84C" style={{ position: "absolute", left: 18, top: "50%", transform: "translateY(-50%)" }} />
+          <input
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleSearch()}
+            placeholder="Search mysteries (e.g. 'Medusa tattoo')"
+            readOnly={loading}
+            style={{
+              width: "100%", background: "#0a0a0b",
+              border: "1px solid #C9A84C44",
+              borderRadius: 30, padding: "16px 44px 16px 48px", color: "#c8bfb0",
+              fontSize: 15, outline: "none", boxSizing: "border-box",
+              fontFamily: "system-ui",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.4)"
+            }}
+          />
+          {input && !loading && (
+            <button onClick={clearSearch} style={{ position: "absolute", right: 16, top: "50%", transform: "translateY(-50%)", background: "transparent", border: "none", cursor: "pointer", color: "#555" }}>
+              <X size={16} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Results Knowledge Card */}
       {hasSearched && (
-          <div style={{ 
-              background: "#1a1a1c", borderRadius: 12, border: "1px solid #2a2a2c",
-              padding: "24px", flex: 1, animation: "fadeIn 0.5s ease-out",
-              position: "relative", overflowY: "auto"
-          }}>
-              {loading ? (
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", minHeight: "250px" }}>
-                       <Loader2 size={36} color="#C9A84C" style={{ animation: "spin 2s linear infinite", marginBottom: "16px" }} />
-                       <p style={{ margin: 0, color: "#C9A84C", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700 }}>Consulting the Archives...</p>
-                  </div>
-              ) : result?.error ? (
-                  <p style={{ color: "#E24B4A", textAlign: "center" }}>{result.error}</p>
-              ) : result && (
-                  <div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #C9A84C33", paddingBottom: "12px", marginBottom: "20px" }}>
-                          <h4 style={{ color: "#C9A84C", fontSize: 20, margin: 0, fontFamily: "'Georgia', serif" }}>{result.emoji} {result.name}</h4>
-                          <span style={{ fontSize: 10, color: "#888", textTransform: "uppercase" }}>{result.culture}</span>
-                      </div>
-                      
-                      <div style={{ display: "flex", flexDirection: "column", gap: "16px", fontSize: "14px", color: "#c8bfb0", lineHeight: 1.6 }}>
-                          <div>
-                              <strong style={{ color: "#C9A84C", display: "block", fontSize: "11px", textTransform: "uppercase", marginBottom: "4px" }}>History</strong>
-                              {result.history}
-                          </div>
-                          <div>
-                              <strong style={{ color: "#C9A84C", display: "block", fontSize: "11px", textTransform: "uppercase", marginBottom: "4px" }}>Meaning</strong>
-                              {result.meaning}
-                          </div>
-                          <div>
-                              <strong style={{ color: "#C9A84C", display: "block", fontSize: "11px", textTransform: "uppercase", marginBottom: "4px" }}>Expert Placement</strong>
-                              {result.bestPlacement}
-                          </div>
-                          
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>
-                              {result.tags?.map(t => (
-                                  <span key={t} style={{ background: "#2a2a2c", padding: "2px 8px", borderRadius: "4px", fontSize: "10px", color: "#888" }}>#{t}</span>
-                              ))}
-                          </div>
-                      </div>
+        <div style={{
+          background: "#1a1a1c", borderRadius: 12, border: "1px solid #2a2a2c",
+          padding: "24px", flex: 1, animation: "fadeIn 0.5s ease-out",
+          position: "relative", overflowY: "auto"
+        }}>
+          {loading ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", minHeight: "250px" }}>
+              <Loader2 size={36} color="#C9A84C" style={{ animation: "spin 2s linear infinite", marginBottom: "16px" }} />
+              <p style={{ margin: 0, color: "#C9A84C", fontSize: 13, textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700 }}>Consulting the Archives...</p>
+            </div>
+          ) : result?.error ? (
+            <p style={{ color: "#E24B4A", textAlign: "center" }}>{result.error}</p>
+          ) : result && (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #C9A84C33", paddingBottom: "12px", marginBottom: "20px" }}>
+                <h4 style={{ color: "#C9A84C", fontSize: 20, margin: 0, fontFamily: "'Georgia', serif" }}>{result.emoji} {result.name}</h4>
+                <span style={{ fontSize: 10, color: "#888", textTransform: "uppercase" }}>{result.culture}</span>
+              </div>
 
-                      <button 
-                        onClick={() => window.location.href = `/appointment?style=${encodeURIComponent(result.name)}`}
-                        style={{ width: "100%", marginTop: "24px", background: "#C9A84C", border: "none", borderRadius: "8px", padding: "12px", fontWeight: 700, cursor: "pointer", color: "#000" }}
-                      >
-                        Book Artist for this Design
-                      </button>
-                  </div>
-              )}
-          </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px", fontSize: "14px", color: "#c8bfb0", lineHeight: 1.6 }}>
+                <div>
+                  <strong style={{ color: "#C9A84C", display: "block", fontSize: "11px", textTransform: "uppercase", marginBottom: "4px" }}>History</strong>
+                  {result.history}
+                </div>
+                <div>
+                  <strong style={{ color: "#C9A84C", display: "block", fontSize: "11px", textTransform: "uppercase", marginBottom: "4px" }}>Meaning</strong>
+                  {result.meaning}
+                </div>
+                <div>
+                  <strong style={{ color: "#C9A84C", display: "block", fontSize: "11px", textTransform: "uppercase", marginBottom: "4px" }}>Expert Placement</strong>
+                  {result.bestPlacement}
+                </div>
+
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>
+                  {result.tags?.map(t => (
+                    <span key={t} style={{ background: "#2a2a2c", padding: "2px 8px", borderRadius: "4px", fontSize: "10px", color: "#888" }}>#{t}</span>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={() => window.location.href = `/appointment?style=${encodeURIComponent(result.name)}`}
+                style={{ width: "100%", marginTop: "24px", background: "#C9A84C", border: "none", borderRadius: "8px", padding: "12px", fontWeight: 700, cursor: "pointer", color: "#000" }}
+              >
+                Book Artist for this Design
+              </button>
+            </div>
+          )}
+        </div>
       )}
-      
+
       <style>
         {`
           @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -614,33 +658,45 @@ export default function TattooLibrary() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#f0ebe0",
-      fontFamily: "'Georgia', 'Times New Roman', serif" }}>
+    <div style={{
+      minHeight: "100vh", background: "#0a0a0a", color: "#f0ebe0",
+      fontFamily: "'Georgia', 'Times New Roman', serif"
+    }}>
 
       {/* Header */}
-      <div style={{ borderBottom: "1px solid #1a1a1a", padding: "48px 40px 36px",
-        background: "radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%)" }}>
+      <div style={{
+        borderBottom: "1px solid #1a1a1a", padding: "48px 40px 36px",
+        background: "radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%)"
+      }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <p style={{ margin: "0 0 8px", fontSize: 11, color: "#C9A84C", fontWeight: 700,
-            textTransform: "uppercase", letterSpacing: "0.2em", fontFamily: "system-ui" }}>
+          <p style={{
+            margin: "0 0 8px", fontSize: 11, color: "#C9A84C", fontWeight: 700,
+            textTransform: "uppercase", letterSpacing: "0.2em", fontFamily: "system-ui"
+          }}>
             Inkspire
           </p>
-          <h1 style={{ margin: "0 0 12px", fontSize: "clamp(32px, 5vw, 56px)",
+          <h1 style={{
+            margin: "0 0 12px", fontSize: "clamp(32px, 5vw, 56px)",
             fontWeight: 900, letterSpacing: "-1px", lineHeight: 1.1,
             background: "linear-gradient(135deg, #f0ebe0 0%, #C9A84C 50%, #8B6914 100%)",
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"
+          }}>
             Symbolism Library
           </h1>
-          <p style={{ margin: 0, fontSize: 16, color: "#6b6560", maxWidth: 560, lineHeight: 1.6,
-            fontFamily: "system-ui", fontWeight: 400 }}>
+          <p style={{
+            margin: 0, fontSize: 16, color: "#6b6560", maxWidth: 560, lineHeight: 1.6,
+            fontFamily: "system-ui", fontWeight: 400
+          }}>
             Every mark carries a story older than memory. Explore 12 symbols across cultures,
             find your meaning, and book the artist who will make it permanent.
           </p>
         </div>
       </div>
 
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 40px 80px",
-        display: "grid", gridTemplateColumns: "1fr 280px", gap: 32, alignItems: "start" }}>
+      <div style={{
+        maxWidth: 1200, margin: "0 auto", padding: "32px 40px 80px",
+        display: "grid", gridTemplateColumns: "1fr 280px", gap: 32, alignItems: "start"
+      }}>
 
         {/* Main column */}
         <div>
@@ -660,21 +716,27 @@ export default function TattooLibrary() {
 
           {/* Search */}
           <div style={{ position: "relative", marginBottom: 28 }}>
-            <Search size={16} color="#555" style={{ position: "absolute", left: 14, top: "50%",
-              transform: "translateY(-50%)", pointerEvents: "none" }} />
+            <Search size={16} color="#555" style={{
+              position: "absolute", left: 14, top: "50%",
+              transform: "translateY(-50%)", pointerEvents: "none"
+            }} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder='Search by feeling: "strength", "new beginnings", "wisdom"...'
-              style={{ width: "100%", background: "#111", border: "1px solid #2a2a2a",
+              style={{
+                width: "100%", background: "#111", border: "1px solid #2a2a2a",
                 borderRadius: 10, padding: "11px 14px 11px 40px", color: "#c8bfb0",
                 fontSize: 14, outline: "none", boxSizing: "border-box",
-                fontFamily: "system-ui" }}
+                fontFamily: "system-ui"
+              }}
             />
             {search && (
-              <button onClick={() => setSearch("")} style={{ position: "absolute", right: 12,
+              <button onClick={() => setSearch("")} style={{
+                position: "absolute", right: 12,
                 top: "50%", transform: "translateY(-50%)", background: "transparent",
-                border: "none", cursor: "pointer", color: "#555" }}>
+                border: "none", cursor: "pointer", color: "#555"
+              }}>
                 <X size={14} />
               </button>
             )}
@@ -695,8 +757,10 @@ export default function TattooLibrary() {
               <p style={{ fontFamily: "system-ui" }}>No symbols found. Try a different search or filter.</p>
             </div>
           ) : (
-            <div style={{ display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16 }}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 16
+            }}>
               {filtered.map(s => <SymbolCard key={s.id} symbol={s} onClick={setSelected} />)}
             </div>
           )}
