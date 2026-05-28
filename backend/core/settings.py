@@ -133,6 +133,8 @@ else:
         },
     }
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 # Media Files (For User Uploads / Shop Images)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
