@@ -114,13 +114,15 @@ STATICFILES_DIRS = [
 ]
 
 # Storage Configuration (Cloudinary for Media, WhiteNoise for Static)
+# Using CompressedStaticFilesStorage instead of CompressedManifestStaticFilesStorage
+# to avoid MissingFileError caused by DRF's bootstrap.min.css referencing glyphicon fonts.
 if os.getenv("CLOUDINARY_URL"):
     STORAGES = {
         "default": {
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
         },
     }
 else:
@@ -129,14 +131,11 @@ else:
             "BACKEND": "django.core.files.storage.FileSystemStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
         },
     }
 
-if os.getenv("CLOUDINARY_URL"):
-    STATICFILES_STORAGE = "cloudinary_storage.storage.StaticHashedCloudinaryStorage"
-else:
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Note: STATICFILES_STORAGE is deprecated in Django 4.2+; use STORAGES["staticfiles"] above.
 
 # Media Files (For User Uploads / Shop Images)
 MEDIA_URL = "/media/"
