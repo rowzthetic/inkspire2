@@ -18,7 +18,7 @@ from apps.users.views import (
 )
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("django-admin/", admin.site.urls),
     # --- Authentication & Users ---
     # This includes your login/register/verify-otp
     path("api/token/verify/", TokenVerifyView.as_view()),
@@ -57,7 +57,7 @@ urlpatterns = [
 
     # --- 👇 React Frontend Catch-all Route ---
     # Any route that doesn't start with api/, admin/, static/, or media/ will be served the React app.
-    re_path(r"^(?!api/|admin/|static/|media/).*$", TemplateView.as_view(template_name="index.html")),
+    re_path(r"^(?!api/|django-admin/|static/|media).*$", TemplateView.as_view(template_name="index.html")),
 ]
 
 if settings.DEBUG:

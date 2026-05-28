@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = "django-insecure-^9+uezzcxq8u0&8e4y6sqm=^zgqk0z1o)dutsvi+5i=-!8l5td"
 DEBUG = True
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*", "https://inkspire2.onrender.com"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -133,7 +133,10 @@ else:
         },
     }
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+if os.getenv("CLOUDINARY_URL"):
+    STATICFILES_STORAGE = "cloudinary_storage.storage.StaticHashedCloudinaryStorage"
+else:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Media Files (For User Uploads / Shop Images)
 MEDIA_URL = "/media/"
@@ -146,8 +149,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5174",
     "http://localhost",
     "http://localhost:80",
+    "https://inkspire2.onrender.com",
 ]
-
 # Add FRONTEND_URL to CORS if set (for Docker/production)
 _frontend_url = os.getenv("FRONTEND_URL")
 if _frontend_url and _frontend_url not in CORS_ALLOWED_ORIGINS:
