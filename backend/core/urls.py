@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.generic import TemplateView
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 # ✅ FIXED IMPORTS: Added Dashboard Views here
@@ -53,6 +54,10 @@ urlpatterns = [
     path("api/auth/dashboard/settings/", UpdateArtistProfileView.as_view()),
     path("api/artists/", ArtistListView.as_view(), name="artist-list"),
     path("api/artists/<int:id>/", ArtistDetailView.as_view(), name="artist-detail"),
+
+    # --- 👇 React Frontend Catch-all Route ---
+    # Any route that doesn't start with api/, admin/, static/, or media/ will be served the React app.
+    re_path(r"^(?!api/|admin/|static/|media/).*$", TemplateView.as_view(template_name="index.html")),
 ]
 
 if settings.DEBUG:
