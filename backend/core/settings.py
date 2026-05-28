@@ -24,6 +24,8 @@ INSTALLED_APPS = [
     "apps.shop",
     "apps.ai",
     "library",
+    # third party storage
+    "cloudinary_storage",
     # django
     "django.contrib.admin",
     "django.contrib.auth",
@@ -32,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # third party
+    "cloudinary",
     "rest_framework",
     "corsheaders",
     "rest_framework_simplejwt",
@@ -110,8 +113,25 @@ STATICFILES_DIRS = [
     BASE_DIR / "dist",
 ]
 
-# Enable WhiteNoise compression and caching for static files
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Storage Configuration (Cloudinary for Media, WhiteNoise for Static)
+if os.getenv("CLOUDINARY_URL"):
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 # Media Files (For User Uploads / Shop Images)
 MEDIA_URL = "/media/"
