@@ -192,6 +192,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER") or "noreply@inkspire.com"
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = f"Inkspire <{EMAIL_HOST_USER}>"
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL") or EMAIL_HOST_USER
 
 # ==========================================
 # 🔑 GOOGLE AUTH SETTINGS

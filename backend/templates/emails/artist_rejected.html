@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Update - Inkspire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .message {
+            color: #374151;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .reason-box {
+            background-color: #fef2f2;
+            border-left: 4px solid #ef4444;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .reason-box h3 {
+            color: #991b1b;
+            margin: 0 0 10px 0;
+            font-size: 16px;
+        }
+        .reason-box p {
+            color: #7f1d1d;
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .footer {
+            background-color: #f9fafb;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer p {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0;
+        }
+        .footer .brand {
+            color: #111827;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Application Status Update</h1>
+        </div>
+        
+        <div class="content">
+            <div class="message">
+                <p>Hello {{ user.username }},</p>
+                <p>Thank you for your interest in joining Inkspire as an artist and for taking the time to submit your application.</p>
+                <p>After carefully reviewing your profile and portfolio, we regret to inform you that we are unable to approve your artist account at this time.</p>
+            </div>
+            
+            <div class="reason-box">
+                <h3>Reason for Rejection:</h3>
+                <p>{{ reason }}</p>
+            </div>
+            
+            <div class="message">
+                <p>If you have any questions or feel this decision was made in error, please feel free to reply to this email or reach out to our support team.</p>
+                <p>Best regards,<br>The Inkspire Team</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="brand">INKSPIRE</div>
+            <p>Connecting you with the best tattoo artists</p>
+        </div>
+    </div>
+</body>
+</html>

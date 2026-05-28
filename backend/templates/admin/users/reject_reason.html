@@ -1,0 +1,49 @@
+{% extends "admin/base_site.html" %}
+{% load i18n l10n admin_urls %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {{ media }}
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {% translate 'Reject artist application' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<p>Please provide a reason for rejecting the following artist application(s):</p>
+
+<form action="" method="post">{% csrf_token %}
+    <div>
+        {% for obj in queryset %}
+        <input type="hidden" name="_selected_action" value="{{ obj.pk }}" />
+        {% endfor %}
+        <input type="hidden" name="action" value="reject_artists" />
+        <input type="hidden" name="post" value="yes" />
+
+        <div style="background-color: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 20px;">
+            <h3>Selected Artist(s):</h3>
+            <ul>
+                {% for obj in queryset %}
+                <li><strong>{{ obj.username }}</strong> ({{ obj.email }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="form-row" style="margin-bottom: 20px;">
+            <label for="id_reason" style="display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px;">Rejection Reason:</label>
+            <textarea id="id_reason" name="reason" rows="6" cols="80" style="width: 100%; max-width: 600px; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-family: inherit; font-size: 14px;" required placeholder="Enter the reason why this application is being rejected..."></textarea>
+        </div>
+
+        <div class="submit-row" style="margin-top: 20px;">
+            <input type="submit" value="Send Rejection & Deactivate" class="default" style="background: #ef4444; border: none; padding: 10px 20px; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; margin-right: 10px;" />
+            <a href="{% url opts|admin_urlname:'changelist' %}" class="button cancel-link" style="display: inline-block; background: #9ca3af; padding: 10px 20px; color: white; font-weight: bold; border-radius: 4px; text-decoration: none;">Cancel</a>
+        </div>
+    </div>
+</form>
+{% endblock %}

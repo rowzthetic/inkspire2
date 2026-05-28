@@ -353,7 +353,8 @@ import random
 
 from django.conf import settings
 from django.contrib.auth import get_user_model, login, logout
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage, send_mail
+from django.template.loader import render_to_string
 from django.utils import timezone
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
@@ -467,6 +468,7 @@ class VerifyOTPView(APIView):
                 user.is_active = False
                 user.save()
 
+                # 1. Send pending approval email to the artist
                 try:
                     logger.info(f"Sending artist pending approval email to {user.email}")
                     send_mail(
@@ -479,6 +481,32 @@ class VerifyOTPView(APIView):
                     logger.info(f"Artist pending approval email sent to {user.email}")
                 except Exception as e:
                     logger.error(f"Error sending pending email to {user.email}: {e}")
+
+                # 2. Send registration notification email to the admin
+                try:
+                    admin_email = getattr(settings, 'ADMIN_EMAIL', None)
+                    if admin_email:
+                        logger.info(f"Sending artist registration notification to Admin: {admin_email}")
+                        admin_subject = f"Inkspire: New Artist Registration - {user.username}"
+                        admin_message = render_to_string(
+                            "emails/admin_new_artist.html",
+                            {
+                                "user": user,
+                                "registered_at": timezone.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                "admin_url": f"{settings.FRONTEND_URL}/django-admin/users/user/{user.id}/change/",
+                            }
+                        )
+                        email = EmailMessage(
+                            admin_subject,
+                            admin_message,
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            to=[admin_email]
+                        )
+                        email.content_subtype = "html"
+                        email.send(fail_silently=False)
+                        logger.info("Admin notification email sent successfully.")
+                except Exception as e:
+                    logger.error(f"Error sending admin notification: {e}")
 
                 return Response(
                     {

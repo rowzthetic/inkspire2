@@ -95,6 +95,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl https://inkspire2.onrender.com/api/ || exit 1
 
-# Run migrations and start Gunicorn
-CMD ["sh", "-c", ".venv/bin/python manage.py migrate && .venv/bin/gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120 --access-logfile - --error-logfile -"]
+# Run migrations, create superuser, seed database, and start Gunicorn
+CMD ["sh", "-c", ".venv/bin/python manage.py migrate && .venv/bin/python manage.py create_admin_superuser && .venv/bin/python manage.py seed_db && .venv/bin/gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120 --access-logfile - --error-logfile -"]
 
