@@ -136,6 +136,7 @@ else:
     }
 
 # Note: STATICFILES_STORAGE is deprecated in Django 4.2+; use STORAGES["staticfiles"] above.
+STATICFILES_STORAGE = "cloudinary_storage.storage.StaticHashedCloudinaryStorage" if os.getenv("CLOUDINARY_URL") else "whitenoise.storage.CompressedStaticFilesStorage"
 
 # Media Files (For User Uploads / Shop Images)
 MEDIA_URL = "/media/"
