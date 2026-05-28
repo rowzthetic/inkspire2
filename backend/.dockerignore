@@ -1,0 +1,38 @@
+# Python
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+
+# Node (not needed in backend)
+node_modules
+package-lock.json
+package.json
+
+# IDE
+.vscode
+.idea
+
+# Env files (injected via docker-compose)
+.env
+.env.local
+
+# Database (will use PostgreSQL in production)
+db.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dev tools
+.ruff_cache
+.mypy_cache
+.pytest_cache
+
+# Binaries
+stripe.exe
+
+# Git
+.git
+.gitignore

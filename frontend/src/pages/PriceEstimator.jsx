@@ -112,7 +112,7 @@ export default function PriceEstimator() {
       </div>
 
       {/* --- RESULTS SECTION --- */}
-      {/* Error message is now styled to look like a warning box */}
+      
       {error && (
         <div style={{ 
             marginTop: "20px", 

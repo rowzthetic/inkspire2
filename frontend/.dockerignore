@@ -1,0 +1,24 @@
+# Dependencies
+node_modules
+
+# Build output (rebuilt in container)
+dist
+
+# Env files (injected via build args)
+.env
+.env.local
+
+# IDE
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Misc
+images

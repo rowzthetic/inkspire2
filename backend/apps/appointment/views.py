@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 
 import stripe
@@ -5,6 +6,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+
+logger = logging.getLogger(__name__)
 from django.utils import timezone
 from rest_framework import generics, parsers, permissions, status
 from rest_framework.response import Response
@@ -61,6 +64,7 @@ def send_appointment_email(appointment, action):
 
     # Send email
     try:
+        logger.info(f"Sending appointment {action} email to {customer.email}")
         send_mail(
             subject=subject,
             message="",  # Plain text version (optional)
@@ -69,8 +73,9 @@ def send_appointment_email(appointment, action):
             html_message=html_message,
             fail_silently=False,
         )
+        logger.info(f"Appointment {action} email sent successfully to {customer.email}")
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        logger.error(f"Failed to send appointment {action} email to {customer.email}: {e}")
 
 
 # ==========================================
@@ -724,6 +729,7 @@ class HealingReminderView(APIView):
         """
 
         try:
+            logger.info(f"Sending healing reminder email to {email}")
             send_mail(
                 subject="🩹 Your tattoo healing reminders are set!",
                 message=(
@@ -736,7 +742,9 @@ class HealingReminderView(APIView):
                 html_message=html_message,
                 fail_silently=False,
             )
+            logger.info(f"Healing reminder email sent successfully to {email}")
         except Exception as e:
+            logger.error(f"Email send failed to {email}: {e}")
             return Response({"error": f"Email send failed: {str(e)}"}, status=500)
 
         return Response({"status": "reminders_set", "email": email})

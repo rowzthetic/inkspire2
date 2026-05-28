@@ -1,0 +1,64 @@
+# ============================================
+# Inkspire Backend - Production Dockerfile
+# ============================================
+FROM python:3.12-slim AS base
+
+# Prevent Python from writing .pyc files and enable unbuffered output
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies needed for production
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv (fast Python package manager)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+
+# Copy dependency files first (for Docker layer caching)
+COPY backend/pyproject.toml backend/uv.lock ./
+
+# Install Python dependencies (without dev dependencies)
+RUN uv sync --frozen --no-dev
+
+# Copy the rest of the backend code
+COPY backend/ .
+
+# Add gunicorn to the environment (production WSGI server)
+RUN uv pip install gunicorn
+
+# Create the persistent data directory for SQLite
+RUN mkdir -p /app/data
+
+# Set the SQLite database path to the persistent volume
+ENV DB_PATH=/app/data/db.sqlite3
+
+# Collect static files
+RUN uv run python manage.py collectstatic --noinput || true
+
+# Create a non-root user for security
+RUN addgroup --system inkspire && \
+    adduser --system --ingroup inkspire inkspire && \
+    chown -R inkspire:inkspire /app
+
+USER inkspire
+
+# Set uv cache dir to a writable location for the non-root user
+ENV UV_CACHE_DIR=/tmp/.uv-cache
+
+# Set home directory to avoid /nonexistent permission errors
+ENV HOME=/app
+
+# Expose port
+EXPOSE 8000
+
+# Health check (remove -f so 404 responses don't fail the check, just verifying the server is up)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl http://localhost:8000/api/ || exit 1
+
+# Run migrations and then start Gunicorn for production
+CMD ["sh", "-c", "uv run python manage.py migrate && uv run gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120 --access-logfile - --error-logfile -"]

@@ -348,6 +348,7 @@
 #         return self.request.user
 
 
+import logging
 import random
 
 from django.conf import settings
@@ -357,6 +358,8 @@ from django.utils import timezone
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
 from rest_framework import filters, generics, permissions, status
+
+logger = logging.getLogger(__name__)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -410,6 +413,7 @@ class RegisterView(APIView):
             user.save()
 
             try:
+                logger.info(f"Sending registration OTP email to {user.email}")
                 send_mail(
                     "Verify your Inkspire Account",
                     f"Welcome {user.username}! Your verification code is: {otp_code}",
@@ -417,8 +421,9 @@ class RegisterView(APIView):
                     [user.email],
                     fail_silently=False,
                 )
+                logger.info(f"Registration OTP email successfully sent to {user.email}")
             except Exception as e:
-                print(f"Email Error: {e}")
+                logger.error(f"Email Error during registration for {user.email}: {e}")
                 return Response(
                     {"warning": "User created, but email failed to send."}, status=201
                 )
@@ -463,6 +468,7 @@ class VerifyOTPView(APIView):
                 user.save()
 
                 try:
+                    logger.info(f"Sending artist pending approval email to {user.email}")
                     send_mail(
                         subject="Inkspire: Artist Application Pending",
                         message=f"Hi {user.username},\n\nYour email has been verified successfully!\n\nYour account is currently under review by our admin team.\n\nThanks,\nThe Inkspire Team",
@@ -470,8 +476,9 @@ class VerifyOTPView(APIView):
                         recipient_list=[user.email],
                         fail_silently=False,
                     )
+                    logger.info(f"Artist pending approval email sent to {user.email}")
                 except Exception as e:
-                    print(f"Error sending pending email: {e}")
+                    logger.error(f"Error sending pending email to {user.email}: {e}")
 
                 return Response(
                     {
@@ -574,13 +581,18 @@ class LoginWithOTPView(APIView):
             user.otp_expiry = get_otp_expiry()
             user.save()
 
-            send_mail(
-                "Inkspire Login Code",
-                f"Your login code is: {otp}",
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
+            logger.info(f"Sending login OTP email to {email}")
+            try:
+                send_mail(
+                    "Inkspire Login Code",
+                    f"Your login code is: {otp}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                logger.info(f"Login OTP email sent to {email}")
+            except Exception as e:
+                logger.error(f"Error sending login OTP to {email}: {e}")
             return Response({"message": "OTP sent to email", "email": email})
         return Response(serializer.errors, status=400)
 
@@ -709,13 +721,18 @@ class PasswordResetRequestView(APIView):
             user.otp_expiry = get_otp_expiry()
             user.save()
             
-            send_mail(
-                "Inkspire Password Reset",
-                f"Your password reset code is: {otp}",
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
+            logger.info(f"Sending password reset OTP email to {email}")
+            try:
+                send_mail(
+                    "Inkspire Password Reset",
+                    f"Your password reset code is: {otp}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+                logger.info(f"Password reset OTP email sent to {email}")
+            except Exception as e:
+                logger.error(f"Error sending password reset OTP to {email}: {e}")
             return Response({"message": "Password reset OTP sent"})
         except User.DoesNotExist:
             return Response({"message": "If the email is registered, an OTP has been sent."})
