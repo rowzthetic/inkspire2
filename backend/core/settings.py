@@ -181,19 +181,16 @@ REST_FRAMEWORK = {
 APPEND_SLASH = False
 
 # ==========================================
-# 📧 EMAIL SETTINGS (Now loaded from .env)
+# 📧 EMAIL SETTINGS (via Resend SDK)
 # ==========================================
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_TIMEOUT = 5
+# Django's built-in email backend is disabled; we use the resend package directly.
+# Configure these two variables in your .env / Render environment:
+#   RESEND_API_KEY     — your Resend API key
+#   RESEND_FROM_EMAIL  — e.g. "Inkspire <noreply@yourdomain.com>"
+#                        Use "Inkspire <onboarding@resend.dev>" for Resend sandbox testing.
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "")
 
-# We load these safely from the .env file
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER") or "noreply@inkspire.com"
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = f"Inkspire <{EMAIL_HOST_USER}>"
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL") or EMAIL_HOST_USER
 
 # ==========================================
 # 🔑 GOOGLE AUTH SETTINGS

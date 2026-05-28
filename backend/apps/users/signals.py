@@ -1,8 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.core.mail import EmailMessage
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
+from django.conf import settings
+
+from apps.users.email_utils import send_email
 
 User = get_user_model()
 
@@ -27,27 +29,24 @@ def check_status_change(sender, instance, **kwargs):
 def send_approval_email(sender, instance, created, **kwargs):
     """
     After saving, check the flag we set in pre_save.
-    If True, send the approval email.
+    If True, send the approval email via Resend.
     """
-    # Check if our custom flag exists and is True
     if getattr(instance, "_is_being_activated", False):
-        # Only send to Artists
         if instance.is_artist:
-            mail_subject = "Congratulations! Your Artist Account is Approved"
-            message = render_to_string(
+            login_url = f"{getattr(settings, 'FRONTEND_URL', 'http://localhost:5173')}/login"
+            html = render_to_string(
                 "emails/artist_approved.html",
                 {
                     "user": instance,
-                    "login_url": "http://localhost:5173/login",
+                    "login_url": login_url,
                 },
             )
+            send_email(
+                to=instance.email,
+                subject="Congratulations! Your Artist Account is Approved",
+                html=html,
+            )
 
-            try:
-                email = EmailMessage(mail_subject, message, to=[instance.email])
-                email.send()
-                print(f"Approval email sent to {instance.email}")
-            except Exception as e:
-                print(f"Failed to send approval email to {instance.email}: {e}")
+        # Remove the flag to prevent double sending (in memory)
+        instance._is_being_activated = False
 
-            # Remove the flag to prevent double sending (in memory)
-            instance._is_being_activated = False

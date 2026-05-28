@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import stripe
 from django.conf import settings
-from django.core.mail import send_mail
+from apps.users.email_utils import send_email
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 
@@ -65,13 +65,10 @@ def send_appointment_email(appointment, action):
     # Send email
     try:
         logger.info(f"Sending appointment {action} email to {customer.email}")
-        send_mail(
+        send_email(
+            to=customer.email,
             subject=subject,
-            message="",  # Plain text version (optional)
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[customer.email],
-            html_message=html_message,
-            fail_silently=False,
+            html=html_message,
         )
         logger.info(f"Appointment {action} email sent successfully to {customer.email}")
     except Exception as e:
@@ -730,17 +727,10 @@ class HealingReminderView(APIView):
 
         try:
             logger.info(f"Sending healing reminder email to {email}")
-            send_mail(
+            send_email(
+                to=email,
                 subject="🩹 Your tattoo healing reminders are set!",
-                message=(
-                    f"Hi {request.user.username}, your healing reminders are active "
-                    f"for your appointment with {appointment.artist.username} on "
-                    f"{appointment.appointment_datetime.strftime('%B %d, %Y')}."
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-                html_message=html_message,
-                fail_silently=False,
+                html=html_message,
             )
             logger.info(f"Healing reminder email sent successfully to {email}")
         except Exception as e:

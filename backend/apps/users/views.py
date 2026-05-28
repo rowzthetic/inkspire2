@@ -353,8 +353,8 @@ import random
 
 from django.conf import settings
 from django.contrib.auth import get_user_model, login, logout
-from django.core.mail import EmailMessage, send_mail
 from django.template.loader import render_to_string
+from apps.users.email_utils import send_email
 from django.utils import timezone
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token
@@ -413,18 +413,16 @@ class RegisterView(APIView):
             user.otp_expiry = get_otp_expiry()
             user.save()
 
-            try:
-                logger.info(f"Sending registration OTP email to {user.email}")
-                send_mail(
-                    "Verify your Inkspire Account",
-                    f"Welcome {user.username}! Your verification code is: {otp_code}",
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                )
+            logger.info(f"Sending registration OTP email to {user.email}")
+            ok = send_email(
+                to=user.email,
+                subject="Verify your Inkspire Account",
+                html=f"<p>Welcome <strong>{user.username}</strong>! Your verification code is: <strong>{otp_code}</strong></p>",
+            )
+            if ok:
                 logger.info(f"Registration OTP email successfully sent to {user.email}")
-            except Exception as e:
-                logger.error(f"Email Error during registration for {user.email}: {e}")
+            else:
+                logger.error(f"Email Error during registration for {user.email}")
                 return Response(
                     {"warning": "User created, but email failed to send."}, status=201
                 )
@@ -469,44 +467,35 @@ class VerifyOTPView(APIView):
                 user.save()
 
                 # 1. Send pending approval email to the artist
-                try:
-                    logger.info(f"Sending artist pending approval email to {user.email}")
-                    send_mail(
-                        subject="Inkspire: Artist Application Pending",
-                        message=f"Hi {user.username},\n\nYour email has been verified successfully!\n\nYour account is currently under review by our admin team.\n\nThanks,\nThe Inkspire Team",
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[user.email],
-                        fail_silently=False,
-                    )
-                    logger.info(f"Artist pending approval email sent to {user.email}")
-                except Exception as e:
-                    logger.error(f"Error sending pending email to {user.email}: {e}")
+                logger.info(f"Sending artist pending approval email to {user.email}")
+                pending_html = render_to_string(
+                    "emails/artist_pending.html",
+                    {"user": user},
+                )
+                send_email(
+                    to=user.email,
+                    subject="Inkspire: Artist Application Pending",
+                    html=pending_html,
+                )
 
                 # 2. Send registration notification email to the admin
-                try:
-                    admin_email = getattr(settings, 'ADMIN_EMAIL', None)
-                    if admin_email:
-                        logger.info(f"Sending artist registration notification to Admin: {admin_email}")
-                        admin_subject = f"Inkspire: New Artist Registration - {user.username}"
-                        admin_message = render_to_string(
-                            "emails/admin_new_artist.html",
-                            {
-                                "user": user,
-                                "registered_at": timezone.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                "admin_url": f"{settings.FRONTEND_URL}/django-admin/users/user/{user.id}/change/",
-                            }
-                        )
-                        email = EmailMessage(
-                            admin_subject,
-                            admin_message,
-                            from_email=settings.DEFAULT_FROM_EMAIL,
-                            to=[admin_email]
-                        )
-                        email.content_subtype = "html"
-                        email.send(fail_silently=False)
-                        logger.info("Admin notification email sent successfully.")
-                except Exception as e:
-                    logger.error(f"Error sending admin notification: {e}")
+                admin_email = getattr(settings, 'ADMIN_EMAIL', None)
+                if admin_email:
+                    logger.info(f"Sending artist registration notification to Admin: {admin_email}")
+                    admin_html = render_to_string(
+                        "emails/admin_new_artist.html",
+                        {
+                            "user": user,
+                            "registered_at": timezone.now().strftime("%Y-%m-%d %H:%M:%S"),
+                            "admin_url": f"{getattr(settings, 'FRONTEND_URL', '')}/django-admin/users/user/{user.id}/change/",
+                        },
+                    )
+                    send_email(
+                        to=admin_email,
+                        subject=f"Inkspire: New Artist Registration - {user.username}",
+                        html=admin_html,
+                    )
+                    logger.info("Admin notification email sent successfully.")
 
                 return Response(
                     {
@@ -610,17 +599,12 @@ class LoginWithOTPView(APIView):
             user.save()
 
             logger.info(f"Sending login OTP email to {email}")
-            try:
-                send_mail(
-                    "Inkspire Login Code",
-                    f"Your login code is: {otp}",
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                    fail_silently=False,
-                )
-                logger.info(f"Login OTP email sent to {email}")
-            except Exception as e:
-                logger.error(f"Error sending login OTP to {email}: {e}")
+            send_email(
+                to=email,
+                subject="Inkspire Login Code",
+                html=f"<p>Your Inkspire login code is: <strong>{otp}</strong></p>",
+            )
+            logger.info(f"Login OTP email sent to {email}")
             return Response({"message": "OTP sent to email", "email": email})
         return Response(serializer.errors, status=400)
 
@@ -750,17 +734,12 @@ class PasswordResetRequestView(APIView):
             user.save()
             
             logger.info(f"Sending password reset OTP email to {email}")
-            try:
-                send_mail(
-                    "Inkspire Password Reset",
-                    f"Your password reset code is: {otp}",
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                    fail_silently=False,
-                )
-                logger.info(f"Password reset OTP email sent to {email}")
-            except Exception as e:
-                logger.error(f"Error sending password reset OTP to {email}: {e}")
+            send_email(
+                to=email,
+                subject="Inkspire Password Reset",
+                html=f"<p>Your Inkspire password reset code is: <strong>{otp}</strong></p>",
+            )
+            logger.info(f"Password reset OTP email sent to {email}")
             return Response({"message": "Password reset OTP sent"})
         except User.DoesNotExist:
             return Response({"message": "If the email is registered, an OTP has been sent."})

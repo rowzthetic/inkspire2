@@ -1,13 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.template.response import TemplateResponse
-from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 
 from .models import PortfolioImage, User, WorkSchedule
+from .email_utils import send_email
 
 
 # Register the Custom User Model
@@ -40,40 +39,36 @@ class CustomUserAdmin(UserAdmin):
             reason = request.POST.get('reason')
             count = 0
             for user in queryset:
-                # Update status
+                # Deactivate the user
                 user.is_active = False
                 user.save()
-                
-                # Send rejection email
-                try:
-                    mail_subject = "Update on your Inkspire Artist Application"
-                    message = render_to_string(
-                        "emails/artist_rejected.html",
-                        {
-                            "user": user,
-                            "reason": reason,
-                        },
-                    )
-                    email = EmailMessage(
-                        mail_subject,
-                        message,
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        to=[user.email]
-                    )
-                    email.content_subtype = "html"
-                    email.send(fail_silently=False)
+
+                # Send rejection email via Resend
+                html = render_to_string(
+                    "emails/artist_rejected.html",
+                    {
+                        "user": user,
+                        "reason": reason,
+                    },
+                )
+                ok = send_email(
+                    to=user.email,
+                    subject="Update on your Inkspire Artist Application",
+                    html=html,
+                )
+                if ok:
                     count += 1
-                except Exception as e:
+                else:
                     self.message_user(
                         request,
-                        f"Failed to send email to {user.email}: {str(e)}",
-                        level=messages.ERROR
+                        f"Failed to send email to {user.email}.",
+                        level=messages.ERROR,
                     )
-            
+
             self.message_user(
                 request,
                 f"Successfully rejected {count} artist application(s) and sent notification emails.",
-                level=messages.SUCCESS
+                level=messages.SUCCESS,
             )
             return HttpResponseRedirect(request.get_full_path())
 
